@@ -26,7 +26,7 @@ gr init -u USERNAME -t TOKEN
 ```
 or, if you are using GitHub Enterprise:
 ```
-gr init -u USERNAME -t TOKEN -l https://example.com/api/v3/
+gr init -u USERNAME -t TOKEN -r https://example.com/api/v3/
 ```
 
 After the configuration is created, you can pull all repositories using:
