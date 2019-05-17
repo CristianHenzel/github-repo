@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -32,7 +33,6 @@ func init() {
 	initCmd.Flags().StringVarP(&f.User, "user", "u", "", "GitHub username")
 	initCmd.MarkFlagRequired("user")
 	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
-	initCmd.MarkFlagRequired("token")
 	initCmd.Flags().StringVarP(&f.Url, "url", "r", "", "GitHub Enterprise URL")
 
 	rootCmd.AddCommand(initCmd)
@@ -40,6 +40,8 @@ func init() {
 
 func runInit(username, token, baseurl string) {
 	ctx := context.Background()
+	var httpClient *http.Client
+	var repos []*github.Repository
 
 	if pathExists(configFile) {
 		fmt.Println("ERROR: Configuration file already exists in current directory. "+
@@ -56,9 +58,13 @@ func runInit(username, token, baseurl string) {
 	}
 
 	// Validate data
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
-	tc := oauth2.NewClient(ctx, ts)
-	client := github.NewClient(tc)
+	if token == "" {
+		httpClient = http.DefaultClient
+	} else {
+		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
+		httpClient = oauth2.NewClient(ctx, tokenSource)
+	}
+	client := github.NewClient(httpClient)
 
 	// Set base URL
 	if baseurl != "" {
@@ -100,12 +106,21 @@ func runInit(username, token, baseurl string) {
 		conf.Email = conf.Username + "@users.noreply.github.com"
 	}
 
-	repos, _, err := client.Repositories.List(ctx, "", nil)
+	if token == "" {
+		// Get public repositories for specified username
+		repos, _, err = client.Repositories.List(ctx, username, nil)
+	} else {
+		// Get all repositories for authenticated user
+		repos, _, err = client.Repositories.List(ctx, "", nil)
+	}
 	fatalIfError(err)
 	for _, repo := range repos {
-		urlPrefix := conf.Username + ":" + conf.Token + "@"
-		url := strings.ReplaceAll(*repo.CloneURL, "https://", "https://"+urlPrefix)
-		url = strings.ReplaceAll(url, "http://", "http://"+urlPrefix)
+		url := *repo.CloneURL
+		if token != "" {
+			urlPrefix := conf.Username + ":" + conf.Token + "@"
+			url := strings.ReplaceAll(url, "https://", "https://"+urlPrefix)
+			url = strings.ReplaceAll(url, "http://", "http://"+urlPrefix)
+		}
 		dir := strings.ReplaceAll(*repo.FullName, "/", "_")
 		dir = strings.ReplaceAll(dir, conf.Username+"_", "")
 		branch := *repo.DefaultBranch
