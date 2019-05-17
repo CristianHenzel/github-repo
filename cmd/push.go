@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	color "github.com/fatih/color"
 	cobra "github.com/spf13/cobra"
 	git "gopkg.in/src-d/go-git.v4"
 )
@@ -12,42 +13,30 @@ func init() {
 		Use:   "push",
 		Short: "Push all repositories",
 		Run: func(cmd *cobra.Command, args []string) {
-			runPush()
+			repoLoop(runPush, "Pushing")
 		},
 	}
 
 	rootCmd.AddCommand(pushCmd)
 }
 
-func runPush() {
-	conf := loadConfig()
-	var status StatusList
+func runPush(conf Configuration, repo Repo) string {
+	repository, err := git.PlainOpen(repo.Dir)
+	if err == git.ErrRepositoryNotExists {
+		return color.RedString("Absent")
+	}
+	fatalIfError(err)
 
-	for i, repo := range conf.Repos {
-		status.append(repo.Dir)
-		status.info("Pushing", conf.Repos)
+	err = repository.Push(&git.PushOptions{})
 
-		repository, err := git.PlainOpen(repo.Dir)
-		if err == git.ErrRepositoryNotExists {
-			status[i].appendRed("Absent")
-			continue
-		}
-		fatalIfError(err)
-
-		err = repository.Push(&git.PushOptions{})
-
-		if err == git.ErrNonFastForwardUpdate ||
-			err.Error() == nonFastForwardUpdatePush {
-			status[i].appendRed("Non-fast-forward update")
-			continue
-		}
-
-		if err != git.NoErrAlreadyUpToDate {
-			fatalIfError(err)
-		}
-
-		status[i].appendGreen("OK")
+	if err == git.ErrNonFastForwardUpdate ||
+		err.Error() == nonFastForwardUpdatePush {
+		return color.RedString("Non-fast-forward update")
 	}
 
-	status.print()
+	if err != git.NoErrAlreadyUpToDate {
+		fatalIfError(err)
+	}
+
+	return color.GreenString("OK")
 }
