@@ -7,14 +7,6 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-type flags struct {
-	User  string
-	Token string
-	Url   string
-}
-
-var f flags
-
 func fatalIfError(err error) {
 	if err != nil {
 		fmt.Println(err)
