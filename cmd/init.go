@@ -118,7 +118,7 @@ func runInit(username, token, baseurl string) {
 		url := *repo.CloneURL
 		if token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
-			url := strings.ReplaceAll(url, "https://", "https://"+urlPrefix)
+			url = strings.ReplaceAll(url, "https://", "https://"+urlPrefix)
 			url = strings.ReplaceAll(url, "http://", "http://"+urlPrefix)
 		}
 		dir := strings.ReplaceAll(*repo.FullName, "/", "_")
