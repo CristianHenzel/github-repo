@@ -25,14 +25,6 @@ func init() {
 		Use:   "init",
 		Short: "Initialize repository mirror",
 		Run: func(cmd *cobra.Command, args []string) {
-			if pathExists(configFile) {
-				fmt.Println("ERROR: Configuration file already exists in current directory. "+
-					"Please run 'update' if you want to update your settings. "+
-					"Alternatively, remove", configFile, "if you want to initialize "+
-					"the repository again.")
-				os.Exit(255)
-			}
-
 			runInit(f.User, f.Token, f.Url)
 		},
 	}
@@ -48,6 +40,14 @@ func init() {
 
 func runInit(username, token, baseurl string) {
 	ctx := context.Background()
+
+	if pathExists(configFile) {
+		fmt.Println("ERROR: Configuration file already exists in current directory. "+
+			"Please run 'update' if you want to update your settings. "+
+			"Alternatively, remove", configFile, "if you want to initialize "+
+			"the repository again.")
+		os.Exit(255)
+	}
 
 	conf := Configuration{
 		Username: username,
