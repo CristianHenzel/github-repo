@@ -118,11 +118,11 @@ func runInit(username, token, baseurl string) {
 		url := *repo.CloneURL
 		if token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
-			url = strings.ReplaceAll(url, "https://", "https://"+urlPrefix)
-			url = strings.ReplaceAll(url, "http://", "http://"+urlPrefix)
+			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
+			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
 		}
-		dir := strings.ReplaceAll(*repo.FullName, "/", "_")
-		dir = strings.ReplaceAll(dir, conf.Username+"_", "")
+		dir := strings.Replace(*repo.FullName, "/", "_", -1)
+		dir = strings.Replace(dir, conf.Username+"_", "", -1)
 		branch := *repo.DefaultBranch
 
 		conf.Repos = append(conf.Repos, Repo{
