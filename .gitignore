@@ -1,0 +1,7 @@
+**
+!.gitignore
+!cmd
+!LICENSE
+!main.go
+!Makefile
+!README.md
