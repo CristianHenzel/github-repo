@@ -12,29 +12,38 @@ import (
 	oauth2 "golang.org/x/oauth2"
 )
 
+type initFlags struct {
+	User  string
+	Token string
+	Url   string
+}
+
 func init() {
-	rootCmd.AddCommand(initCmd)
+	var f initFlags
+
+	var initCmd = &cobra.Command{
+		Use:   "init",
+		Short: "Initialize repository mirror",
+		Run: func(cmd *cobra.Command, args []string) {
+			if pathExists(configFile) {
+				fmt.Println("ERROR: Configuration file already exists in current directory. "+
+					"Please run 'update' if you want to update your settings. "+
+					"Alternatively, remove", configFile, "if you want to initialize "+
+					"the repository again.")
+				os.Exit(255)
+			}
+
+			runInit(f.User, f.Token, f.Url)
+		},
+	}
+
 	initCmd.Flags().StringVarP(&f.User, "user", "u", "", "GitHub username")
 	initCmd.MarkFlagRequired("user")
 	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
 	initCmd.MarkFlagRequired("token")
 	initCmd.Flags().StringVarP(&f.Url, "url", "r", "", "GitHub Enterprise URL")
-}
 
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize repository mirror",
-	Run: func(cmd *cobra.Command, args []string) {
-		if pathExists(configFile) {
-			fmt.Println("ERROR: Configuration file already exists in current directory. "+
-				"Please run 'update' if you want to update your settings. "+
-				"Alternatively, remove", configFile, "if you want to initialize "+
-				"the repository again.")
-			os.Exit(255)
-		}
-
-		runInit(f.User, f.Token, f.Url)
-	},
+	rootCmd.AddCommand(initCmd)
 }
 
 func runInit(username, token, baseurl string) {
