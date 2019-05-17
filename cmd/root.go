@@ -7,6 +7,22 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+type repoOperation func(Configuration, Repo) string
+
+func repoLoop(fn repoOperation, msg string) {
+	conf := loadConfig()
+	var status StatusList
+
+	for i, repo := range conf.Repos {
+		status.append(repo.Dir)
+		status.info(msg, conf.Repos)
+
+		status[i].State = fn(conf, repo)
+	}
+
+	status.print()
+}
+
 func fatalIfError(err error) {
 	if err != nil {
 		fmt.Println(err)
