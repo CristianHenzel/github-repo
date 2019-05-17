@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/CristianHenzel/github-repo)](https://goreportcard.com/report/github.com/CristianHenzel/github-repo)
+
 # github-repo
 GitHub repository management tool
 
