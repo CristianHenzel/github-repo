@@ -8,16 +8,12 @@ UPX = upx
 BINARY_NAME = gr
 INSTALL_PATH = /usr/bin/gr
 
-all: $(BINARY_NAME) compress
+all: $(BINARY_NAME)
 
 .PHONY: clean
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
-
-.PHONY: compress
-compress:
-	$(UPX) -9 $(BINARY_NAME)
 
 .PHONY: deps
 deps:
@@ -26,6 +22,7 @@ deps:
 $(BINARY_NAME) :
 	$(GOGET) -d -v ./...
 	$(GOBUILD) -ldflags="-s -w" -o $(BINARY_NAME)
+	$(UPX) -9 $(BINARY_NAME)
 
 .PHONY: install
 install: $(BINARY_NAME)
