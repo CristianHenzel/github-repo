@@ -1,6 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/CristianHenzel/github-repo)](https://goreportcard.com/report/github.com/CristianHenzel/github-repo)
 
-# github-repo
 GitHub repository management tool
 
 **WARNING!** gr stores all data (including your token) in a plaintext file. If you consider this a security issue or if you are sharing your machine with other people, do not use this tool!
