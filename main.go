@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/cristianhenzel/github-repo/cmd"
+	"github.com/CristianHenzel/github-repo/cmd"
 )
 
 func main() {
