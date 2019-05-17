@@ -5,14 +5,14 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
-}
+	var updateCmd = &cobra.Command{
+		Use:   "update",
+		Short: "Update configuration",
+		Run: func(cmd *cobra.Command, args []string) {
+			conf := loadConfig()
+			runInit(conf.Username, conf.Token, conf.BaseUrl)
+		},
+	}
 
-var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update configuration",
-	Run: func(cmd *cobra.Command, args []string) {
-		conf := loadConfig()
-		runInit(conf.Username, conf.Token, conf.BaseUrl)
-	},
+	rootCmd.AddCommand(updateCmd)
 }
