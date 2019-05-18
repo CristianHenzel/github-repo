@@ -58,7 +58,7 @@ func runInit(username, token, baseurl string) {
 	}
 
 	// Validate data
-	if token == "" {
+	if conf.Token == "" {
 		httpClient = http.DefaultClient
 	} else {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
@@ -67,13 +67,12 @@ func runInit(username, token, baseurl string) {
 	client := github.NewClient(httpClient)
 
 	// Set base URL
-	if baseurl != "" {
-		endpoint, err := url.Parse(baseurl)
+	if conf.BaseUrl != "" {
+		endpoint, err := url.Parse(conf.BaseUrl)
 		fatalIfError(err)
 		if !strings.HasSuffix(endpoint.Path, "/") {
 			endpoint.Path += "/"
 		}
-		conf.BaseUrl = baseurl
 		client.BaseURL = endpoint
 		client.UploadURL = endpoint
 	}
@@ -106,9 +105,9 @@ func runInit(username, token, baseurl string) {
 		conf.Email = conf.Username + "@users.noreply.github.com"
 	}
 
-	if token == "" {
+	if conf.Token == "" {
 		// Get public repositories for specified username
-		repos, _, err = client.Repositories.List(ctx, username, nil)
+		repos, _, err = client.Repositories.List(ctx, conf.Username, nil)
 	} else {
 		// Get all repositories for authenticated user
 		repos, _, err = client.Repositories.List(ctx, "", nil)
