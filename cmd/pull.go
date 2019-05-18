@@ -18,7 +18,7 @@ func init() {
 	rootCmd.AddCommand(pullCmd)
 }
 
-func runPull(conf Configuration, repo Repo) string {
+func runPull(conf Configuration, repo Repo, status *StatusList) {
 	var repository *git.Repository
 	var err error
 
@@ -32,7 +32,8 @@ func runPull(conf Configuration, repo Repo) string {
 		err = workTree.Pull(&git.PullOptions{RemoteName: "origin"})
 
 		if err == git.ErrNonFastForwardUpdate {
-			return color.RedString("Non-fast-forward update")
+			status.append(repo.Dir, color.RedString("Non-fast-forward update"))
+			return
 		}
 
 		if err != git.NoErrAlreadyUpToDate {
@@ -52,5 +53,5 @@ func runPull(conf Configuration, repo Repo) string {
 	fatalIfError(err)
 	repository.Storer.SetConfig(repoConf)
 
-	return color.GreenString("OK")
+	status.append(repo.Dir, color.GreenString("OK"))
 }

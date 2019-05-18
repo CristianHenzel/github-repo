@@ -20,10 +20,11 @@ func init() {
 	rootCmd.AddCommand(pushCmd)
 }
 
-func runPush(conf Configuration, repo Repo) string {
+func runPush(conf Configuration, repo Repo, status *StatusList) {
 	repository, err := git.PlainOpen(repo.Dir)
 	if err == git.ErrRepositoryNotExists {
-		return color.RedString("Absent")
+		status.append(repo.Dir, color.RedString("Absent"))
+		return
 	}
 	fatalIfError(err)
 
@@ -31,12 +32,13 @@ func runPush(conf Configuration, repo Repo) string {
 
 	if err == git.ErrNonFastForwardUpdate ||
 		err.Error() == nonFastForwardUpdatePush {
-		return color.RedString("Non-fast-forward update")
+		status.append(repo.Dir, color.RedString("Non-fast-forward update"))
+		return
 	}
 
 	if err != git.NoErrAlreadyUpToDate {
 		fatalIfError(err)
 	}
 
-	return color.GreenString("OK")
+	status.append(repo.Dir, color.GreenString("OK"))
 }

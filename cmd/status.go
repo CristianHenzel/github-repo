@@ -7,7 +7,6 @@ import (
 
 	color "github.com/fatih/color"
 	cobra "github.com/spf13/cobra"
-	term "golang.org/x/crypto/ssh/terminal"
 	git "gopkg.in/src-d/go-git.v4"
 )
 
@@ -26,14 +25,8 @@ func (status *Status) toString() string {
 	return status.Repo + "\t" + status.State
 }
 
-func (statuslist *StatusList) append(repo string) {
-	*statuslist = append(*statuslist, Status{Repo: repo})
-}
-
-func (statuslist *StatusList) info(msg string, repos []Repo) {
-	if term.IsTerminal(int(os.Stdout.Fd())) {
-		fmt.Printf("\r%s (%d/%d)...", msg, len(*statuslist), len(repos))
-	}
+func (statuslist *StatusList) append(repo, state string) {
+	*statuslist = append(*statuslist, Status{Repo: repo, State: state})
 }
 
 func (statuslist *StatusList) print() {
@@ -59,9 +52,12 @@ func init() {
 	rootCmd.AddCommand(statusCmd)
 }
 
-func runStatus(conf Configuration, repo Repo) (ret string) {
+func runStatus(conf Configuration, repo Repo, status *StatusList) {
+	var ret string
+
 	if !pathExists(repo.Dir) {
-		return color.RedString("Absent")
+		status.append(repo.Dir, color.RedString("Absent"))
+		return
 	}
 
 	repository, err := git.PlainOpen(repo.Dir)
@@ -97,5 +93,6 @@ func runStatus(conf Configuration, repo Repo) (ret string) {
 			break
 		}
 	}
-	return ret
+
+	status.append(repo.Dir, ret)
 }
