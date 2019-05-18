@@ -57,6 +57,11 @@ func runInit(username, token, baseurl string) {
 		BaseUrl:  baseurl,
 	}
 
+	// If concurrency flag is passed durin init, we store it in the config
+	if rootCmd.Flags().Lookup("concurrency").Changed {
+		conf.Concurrency = rf.Concurrency
+	}
+
 	// Validate data
 	if conf.Token == "" {
 		httpClient = http.DefaultClient
