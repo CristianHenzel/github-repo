@@ -3,21 +3,48 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	cobra "github.com/spf13/cobra"
+	term "golang.org/x/crypto/ssh/terminal"
+	pool "gopkg.in/go-playground/pool.v3"
 )
 
-type repoOperation func(Configuration, Repo) string
+type rootFlags struct {
+	Concurrency uint
+}
+
+type repoOperation func(Configuration, Repo, *StatusList)
+
+func repoWorkUnit(fn repoOperation, conf Configuration, repo Repo, status *StatusList) pool.WorkFunc {
+	return func(wu pool.WorkUnit) (interface{}, error) {
+		fn(conf, repo, status)
+		return nil, nil
+	}
+}
 
 func repoLoop(fn repoOperation, msg string) {
 	conf := loadConfig()
 	var status StatusList
+	p := pool.NewLimited(rf.Concurrency)
+	defer p.Close()
+	batch := p.Batch()
 
-	for i, repo := range conf.Repos {
-		status.append(repo.Dir)
-		status.info(msg, conf.Repos)
+	go func() {
+		for _, repo := range conf.Repos {
+			batch.Queue(repoWorkUnit(fn, conf, repo, &status))
+		}
+		batch.QueueComplete()
+	}()
 
-		status[i].State = fn(conf, repo)
+	fmt.Printf("\r%s (0/%d)...", msg, len(conf.Repos))
+
+	i := 1
+	for range batch.Results() {
+		if term.IsTerminal(int(os.Stdout.Fd())) {
+			fmt.Printf("\r%s (%d/%d)...", msg, i, len(conf.Repos))
+		}
+		i++
 	}
 
 	status.print()
@@ -50,9 +77,18 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+var rf rootFlags
+
 // Execute executes the root command.
 func Execute() {
 	rootCmd.Version = "1.0.0"
+
+	rootCmd.PersistentFlags().UintVarP(
+		&rf.Concurrency,
+		"concurrency",
+		"c",
+		uint(runtime.NumCPU()*2),
+		"Concurrency for repository jobs")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
