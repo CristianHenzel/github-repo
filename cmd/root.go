@@ -81,7 +81,7 @@ var rf rootFlags
 
 // Execute executes the root command.
 func Execute() {
-	rootCmd.Version = "1.0.0"
+	rootCmd.Version = Version
 
 	rootCmd.PersistentFlags().UintVarP(
 		&rf.Concurrency,
