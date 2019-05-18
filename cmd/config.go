@@ -19,12 +19,13 @@ type Repo struct {
 
 // Configuration holds git configuration data
 type Configuration struct {
-	Fullname string `json:"Fullname"`
-	Username string `json:"Username"`
-	BaseUrl  string `json:"BaseUrl"`
-	Token    string `json:"Token"`
-	Email    string `json:"Email"`
-	Repos    []Repo `json:"Repos"`
+	Fullname    string `json:"Fullname"`
+	Username    string `json:"Username"`
+	BaseUrl     string `json:"BaseUrl"`
+	Token       string `json:"Token"`
+	Email       string `json:"Email"`
+	Concurrency uint   `json:"Concurrency"`
+	Repos       []Repo `json:"Repos"`
 }
 
 func loadConfig() Configuration {

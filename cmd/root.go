@@ -26,7 +26,14 @@ func repoWorkUnit(fn repoOperation, conf Configuration, repo Repo, status *Statu
 func repoLoop(fn repoOperation, msg string) {
 	conf := loadConfig()
 	var status StatusList
-	p := pool.NewLimited(rf.Concurrency)
+	var p pool.Pool
+	if conf.Concurrency != 0 && !rootCmd.Flags().Lookup("concurrency").Changed {
+		p = pool.NewLimited(conf.Concurrency)
+		fmt.Println("Worker pool:", conf.Concurrency)
+	} else {
+		p = pool.NewLimited(rf.Concurrency)
+		fmt.Println("Worker pool:", rf.Concurrency)
+	}
 	defer p.Close()
 	batch := p.Batch()
 
