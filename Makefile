@@ -5,7 +5,8 @@ GOGET   := $(GOCMD) get
 INSTALL := install
 UPX     := upx
 
-VERSION := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
+BUILDDATE := $(shell date --rfc-3339=seconds)
+VERSION   := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
 ifeq ($(VERSION),)
 	VERSION := dev-$(shell git rev-parse --short HEAD)
 endif
@@ -20,6 +21,7 @@ else
 endif
 BINARY_FOREIGN := $(OUTDIR)/gr-$(ARCH_FOREIGN)-$(VERSION)
 INSTALL_PATH   := /usr/bin/gr
+LDFLAGS        := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
 
 .PHONY: all
 all: $(BINARY_NATIVE) $(BINARY_FOREIGN)
@@ -39,7 +41,7 @@ out:
 
 $(BINARY_FOREIGN) : export GOARCH = $(ARCH_FOREIGN)
 $(BINARY_NATIVE) $(BINARY_FOREIGN) : | deps $(OUTDIR)
-	$(GOBUILD) -ldflags="-s -w" -o $@
+	$(GOBUILD) -ldflags="$(LDFLAGS)" -o $@
 	$(UPX) -9 $@
 
 .PHONY: test
