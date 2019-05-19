@@ -120,7 +120,7 @@ func runInit(f initFlags) {
 	fatalIfError(err)
 	for _, repo := range repos {
 		url := *repo.CloneURL
-		if token != "" {
+		if conf.Token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
 			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
 			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
