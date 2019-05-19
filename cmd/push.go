@@ -36,6 +36,11 @@ func runPush(conf Configuration, repo Repo, status *StatusList) {
 		return
 	}
 
+	if err.Error() == "authentication required" {
+		status.append(repo.Dir, color.RedString("Unauthorized"))
+		return
+	}
+
 	if err != git.NoErrAlreadyUpToDate {
 		fatalIfError(err)
 	}
