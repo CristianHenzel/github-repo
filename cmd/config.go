@@ -21,6 +21,7 @@ type Repo struct {
 type Configuration struct {
 	Fullname    string `json:"Fullname"`
 	Username    string `json:"Username"`
+	BaseDir     string `json:"BaseDir"`
 	BaseUrl     string `json:"BaseUrl"`
 	Token       string `json:"Token"`
 	Email       string `json:"Email"`
