@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	github "github.com/google/go-github/github"
@@ -46,11 +44,7 @@ func runInit(f initFlags) {
 	var repos []*github.Repository
 
 	if pathExists(configFile) {
-		fmt.Println("ERROR: Configuration file already exists in current directory. "+
-			"Please run 'update' if you want to update your settings. "+
-			"Alternatively, remove", configFile, "if you want to initialize "+
-			"the repository again.")
-		os.Exit(255)
+		fatalError(errConfExists)
 	}
 
 	conf := Configuration{
@@ -90,14 +84,11 @@ func runInit(f initFlags) {
 	user, response, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
 		if response.StatusCode == 401 {
-			fmt.Println("ERROR: Invalid token.")
-			os.Exit(255)
+			fatalError(errInvalidToken)
 		} else if response.StatusCode == 404 {
-			fmt.Println("ERROR: Invalid user.")
-			os.Exit(255)
+			fatalError(errInvalidUser)
 		} else {
-			fmt.Println(err)
-			os.Exit(255)
+			fatalError(err)
 		}
 	}
 
