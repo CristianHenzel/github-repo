@@ -97,8 +97,6 @@ func Execute() {
 		uint(runtime.NumCPU()*2),
 		"Concurrency for repository jobs")
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	err := rootCmd.Execute()
+	fatalIfError(err)
 }
