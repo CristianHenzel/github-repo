@@ -26,7 +26,7 @@ func init() {
 		Use:   "init",
 		Short: "Initialize repository mirror",
 		Run: func(cmd *cobra.Command, args []string) {
-			runInit(f.User, f.Token, f.Url)
+			runInit(f)
 		},
 	}
 
@@ -38,7 +38,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func runInit(username, token, baseurl string) {
+func runInit(f initFlags) {
 	ctx := context.Background()
 	var httpClient *http.Client
 	var repos []*github.Repository
@@ -52,13 +52,13 @@ func runInit(username, token, baseurl string) {
 	}
 
 	conf := Configuration{
-		Username: username,
-		Token:    token,
-		BaseUrl:  baseurl,
+		Username: f.User,
+		Token:    f.Token,
+		BaseDir:  f.Dir,
 	}
 
-	// If concurrency flag is passed durin init, we store it in the config
-	if rootCmd.Flags().Lookup("concurrency").Changed {
+	// If concurrency flag is passed during init, we store it in the config
+	if rootCmd.PersistentFlags().Lookup("concurrency").Changed {
 		conf.Concurrency = rf.Concurrency
 	}
 
