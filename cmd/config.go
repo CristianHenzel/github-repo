@@ -35,9 +35,7 @@ func loadConfig() Configuration {
 	bytes, err := ioutil.ReadFile(configFile)
 	e, ok := err.(*os.PathError)
 	if ok && e.Err == syscall.ENOENT {
-		fmt.Println("Couldn't find configuration file. Make sure that you are in the base " +
-			"directory and that init has been run successfully.")
-		os.Exit(255)
+		fatalError(errConfNotExists)
 	}
 	fatalIfError(err)
 

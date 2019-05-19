@@ -14,6 +14,16 @@ type rootFlags struct {
 	Concurrency uint
 }
 
+var (
+	errConfExists = fmt.Errorf("Configuration file already exists in current directory. "+
+		"Please run 'update' if you want to update your settings. "+
+		"Alternatively, remove %s if you want to initialize the repository again.", configFile)
+	errConfNotExists = fmt.Errorf("Couldn't find configuration file. Make sure that you are in the base " +
+		"directory and that init has been run successfully.")
+	errInvalidToken = fmt.Errorf("Invalid token.")
+	errInvalidUser  = fmt.Errorf("Invalid user.")
+)
+
 type repoOperation func(Configuration, Repo, *StatusList)
 
 var doExit func(code int) = os.Exit
