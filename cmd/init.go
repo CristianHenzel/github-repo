@@ -17,6 +17,7 @@ type initFlags struct {
 	User  string
 	Token string
 	Url   string
+	Dir   string
 }
 
 func init() {
@@ -34,6 +35,7 @@ func init() {
 	initCmd.MarkFlagRequired("user")
 	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
 	initCmd.Flags().StringVarP(&f.Url, "url", "r", "", "GitHub Enterprise URL")
+	initCmd.Flags().StringVarP(&f.Dir, "dir", "d", "./", "Directory in which repositories will be stored")
 
 	rootCmd.AddCommand(initCmd)
 }
@@ -127,6 +129,7 @@ func runInit(f initFlags) {
 		}
 		dir := strings.Replace(*repo.FullName, "/", "_", -1)
 		dir = strings.Replace(dir, conf.Username+"_", "", -1)
+		dir = conf.BaseDir + "/" + dir
 		branch := *repo.DefaultBranch
 
 		conf.Repos = append(conf.Repos, Repo{
