@@ -16,6 +16,9 @@ type rootFlags struct {
 
 type repoOperation func(Configuration, Repo, *StatusList)
 
+var doExit func(code int) = os.Exit
+var fatalError = fatalIfError
+
 func repoWorkUnit(fn repoOperation, conf Configuration, repo Repo, status *StatusList) pool.WorkFunc {
 	return func(wu pool.WorkUnit) (interface{}, error) {
 		fn(conf, repo, status)
@@ -60,7 +63,7 @@ func repoLoop(fn repoOperation, msg string) {
 func fatalIfError(err error) {
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(255)
+		doExit(255)
 	}
 }
 
@@ -86,17 +89,23 @@ var rootCmd = &cobra.Command{
 
 var rf rootFlags
 
-// Execute executes the root command.
-func Execute() {
+func init() {
 	rootCmd.Version = Version
+	var con = uint(runtime.NumCPU() * 2)
+	if con == 0 {
+		con = 2
+	}
 
 	rootCmd.PersistentFlags().UintVarP(
 		&rf.Concurrency,
 		"concurrency",
 		"c",
-		uint(runtime.NumCPU()*2),
+		uint(con),
 		"Concurrency for repository jobs")
+}
 
+// Execute executes the root command.
+func Execute() {
 	err := rootCmd.Execute()
 	fatalIfError(err)
 }
