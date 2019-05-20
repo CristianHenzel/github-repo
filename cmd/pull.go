@@ -51,7 +51,8 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 	section.SetOption("email", conf.Email)
 	err = repoConf.Validate()
 	fatalIfError(err)
-	repository.Storer.SetConfig(repoConf)
+	err = repository.Storer.SetConfig(repoConf)
+	fatalIfError(err)
 
 	status.append(repo.Dir, color.GreenString("OK"))
 }
