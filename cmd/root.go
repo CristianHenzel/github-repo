@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"flag"
+	"math"
 	"os"
 	"runtime"
 
@@ -40,12 +42,10 @@ func repoLoop(fn repoOperation, msg string) {
 	conf := loadConfig()
 	var status StatusList
 	var p pool.Pool
-	if conf.Concurrency != 0 && !rootCmd.Flags().Lookup("concurrency").Changed {
+	if conf.Concurrency != 0 && !rootCmd.PersistentFlags().Lookup("concurrency").Changed {
 		p = pool.NewLimited(conf.Concurrency)
-		fmt.Println("Worker pool:", conf.Concurrency)
 	} else {
 		p = pool.NewLimited(rf.Concurrency)
-		fmt.Println("Worker pool:", rf.Concurrency)
 	}
 	defer p.Close()
 	batch := p.Batch()
@@ -57,14 +57,14 @@ func repoLoop(fn repoOperation, msg string) {
 		batch.QueueComplete()
 	}()
 
-	fmt.Printf("\r%s (0/%d)...", msg, len(conf.Repos))
+	if term.IsTerminal(int(os.Stdout.Fd())) || flag.Lookup("test.v") != nil {
+		fmt.Printf("\r%s (0/%d)...", msg, len(conf.Repos))
 
-	i := 1
-	for range batch.Results() {
-		if term.IsTerminal(int(os.Stdout.Fd())) {
+		i := 1
+		for range batch.Results() {
 			fmt.Printf("\r%s (%d/%d)...", msg, i, len(conf.Repos))
+			i++
 		}
-		i++
 	}
 
 	status.print()
@@ -101,10 +101,8 @@ var rf rootFlags
 
 func init() {
 	rootCmd.Version = Version
-	var con = uint(runtime.NumCPU() * 2)
-	if con == 0 {
-		con = 2
-	}
+	var con = float64(runtime.NumCPU() * 2)
+	con = math.Max(con, 4)
 
 	rootCmd.PersistentFlags().UintVarP(
 		&rf.Concurrency,
