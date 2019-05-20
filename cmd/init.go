@@ -45,6 +45,7 @@ func runInit(f initFlags, update bool) {
 
 	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
+		return
 	}
 
 	conf := Configuration{
@@ -90,6 +91,7 @@ func runInit(f initFlags, update bool) {
 		} else {
 			fatalError(err)
 		}
+		return
 	}
 
 	conf.Username = user.GetLogin()
