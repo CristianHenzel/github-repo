@@ -30,7 +30,8 @@ func init() {
 	}
 
 	initCmd.Flags().StringVarP(&f.User, "user", "u", "", "GitHub username")
-	initCmd.MarkFlagRequired("user")
+	err := initCmd.MarkFlagRequired("user")
+	fatalIfError(err)
 	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
 	initCmd.Flags().StringVarP(&f.Url, "url", "r", "", "GitHub Enterprise URL")
 	initCmd.Flags().StringVarP(&f.Dir, "dir", "d", "./", "Directory in which repositories will be stored")

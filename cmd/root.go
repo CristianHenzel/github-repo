@@ -91,7 +91,8 @@ var rootCmd = &cobra.Command{
 	Use:   "gr",
 	Short: "gr is a github repository management tool",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		err := cmd.Help()
+		fatalIfError(err)
 	},
 }
 
