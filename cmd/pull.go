@@ -29,7 +29,7 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 		workTree, err := repository.Worktree()
 		fatalIfError(err)
 
-		err = workTree.Pull(&git.PullOptions{RemoteName: "origin"})
+		err = workTree.Pull(&git.PullOptions{RemoteName: git.DefaultRemoteName})
 
 		if err == git.ErrNonFastForwardUpdate {
 			status.append(repo.Dir, color.RedString("Non-fast-forward update"))
