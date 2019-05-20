@@ -79,14 +79,12 @@ func fatalIfError(err error) {
 
 func pathExists(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
 	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	fatalIfError(err)
-	return false
+	return true
 }
 
 var rootCmd = &cobra.Command{
