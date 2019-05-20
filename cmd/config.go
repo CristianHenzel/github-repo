@@ -36,6 +36,7 @@ func loadConfig() Configuration {
 	e, ok := err.(*os.PathError)
 	if ok && e.Err == syscall.ENOENT {
 		fatalError(errConfNotExists)
+		return conf
 	}
 	fatalIfError(err)
 
