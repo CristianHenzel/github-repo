@@ -78,7 +78,7 @@ func runStatus(conf Configuration, repo Repo, status *StatusList) {
 		ret += color.RedString("Dirty")
 	}
 
-	remote, err := repository.Remote("origin")
+	remote, err := repository.Remote(git.DefaultRemoteName)
 	fatalIfError(err)
 	remoteRef, err := remote.List(&git.ListOptions{})
 	fatalIfError(err)
