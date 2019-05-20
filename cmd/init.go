@@ -25,7 +25,7 @@ func init() {
 		Use:   "init",
 		Short: "Initialize repository mirror",
 		Run: func(cmd *cobra.Command, args []string) {
-			runInit(f)
+			runInit(f, false)
 		},
 	}
 
@@ -38,12 +38,12 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func runInit(f initFlags) {
+func runInit(f initFlags, update bool) {
 	ctx := context.Background()
 	var httpClient *http.Client
 	var repos []*github.Repository
 
-	if pathExists(configFile) {
+	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
 	}
 
