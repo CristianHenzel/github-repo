@@ -1,8 +1,7 @@
-[![GoDoc](https://godoc.org/github.com/CristianHenzel/github-repo?status.svg)](https://godoc.org/github.com/CristianHenzel/github-repo)
-[![Build Status](https://travis-ci.org/CristianHenzel/github-repo.svg?branch=master)](https://travis-ci.org/CristianHenzel/github-repo)
-[![Go Report Card](https://goreportcard.com/badge/github.com/CristianHenzel/github-repo)](https://goreportcard.com/report/github.com/CristianHenzel/github-repo)
-[![Maintainability](https://api.codeclimate.com/v1/badges/c9c535021213c26cef57/maintainability)](https://codeclimate.com/github/CristianHenzel/github-repo/maintainability)
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](https://www.gnu.org/licenses/lgpl-2.1)
+[![Build](https://img.shields.io/travis/CristianHenzel/github-repo.svg?color=BrightGreen)](https://travis-ci.org/CristianHenzel/github-repo)
+[![Go Report](https://goreportcard.com/badge/github.com/CristianHenzel/github-repo)](https://goreportcard.com/report/github.com/CristianHenzel/github-repo)
+[![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/CristianHenzel/github-repo.svg)](https://codeclimate.com/github/CristianHenzel/github-repo/maintainability)
+[![License: LGPL v2.1](https://img.shields.io/github/license/CristianHenzel/github-repo.svg?color=blue)](https://www.gnu.org/licenses/lgpl-2.1)
 
 ----
 
