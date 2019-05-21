@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"math"
 	"os"
 	"runtime"
@@ -18,8 +18,6 @@ var (
 		"Alternatively, remove %s if you want to initialize the repository again.", configFile)
 	errConfNotExists = fmt.Errorf("Couldn't find configuration file. Make sure that you are in the base " +
 		"directory and that init has been run successfully.")
-	errInvalidToken = fmt.Errorf("Invalid token.")
-	errInvalidUser  = fmt.Errorf("Invalid user.")
 )
 
 type repoOperation func(Configuration, Repo, *StatusList)
