@@ -80,15 +80,9 @@ func runInit(f initFlags, update bool) {
 		client.UploadURL = endpoint
 	}
 
-	user, response, err := client.Users.Get(ctx, conf.Username)
+	user, _, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
-		if response.StatusCode == 401 {
-			fatalError(errInvalidToken)
-		} else if response.StatusCode == 404 {
-			fatalError(errInvalidUser)
-		} else {
-			fatalError(err)
-		}
+		fatalIfError(err)
 		return
 	}
 
