@@ -36,9 +36,12 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 			return
 		}
 
-		if err != git.NoErrAlreadyUpToDate {
-			fatalIfError(err)
+		if err == git.NoErrAlreadyUpToDate {
+			// Ignore NoErrAlreadyUpToDate
+			err = nil
 		}
+
+		fatalIfError(err)
 	} else {
 		repository, err = git.PlainClone(repo.Dir, false, &git.CloneOptions{URL: repo.Url})
 		fatalIfError(err)

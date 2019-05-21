@@ -41,9 +41,12 @@ func runPush(conf Configuration, repo Repo, status *StatusList) {
 		return
 	}
 
-	if err != git.NoErrAlreadyUpToDate {
-		fatalIfError(err)
+	if err == git.NoErrAlreadyUpToDate {
+		// Ignore NoErrAlreadyUpToDate
+		err = nil
 	}
+
+	fatalIfError(err)
 
 	status.append(repo.Dir, color.GreenString("OK"))
 }
