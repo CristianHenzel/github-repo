@@ -12,10 +12,6 @@ import (
 	pool "gopkg.in/go-playground/pool.v3"
 )
 
-type rootFlags struct {
-	Concurrency uint
-}
-
 var (
 	errConfExists = fmt.Errorf("Configuration file already exists in current directory. "+
 		"Please run 'update' if you want to update your settings. "+
@@ -42,10 +38,16 @@ func repoLoop(fn repoOperation, msg string) {
 	conf := loadConfig()
 	var status StatusList
 	var p pool.Pool
-	if conf.Concurrency != 0 && !rootCmd.PersistentFlags().Lookup("concurrency").Changed {
+
+	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
+	if conf.Concurrency > 0 && con <= 0 {
 		p = pool.NewLimited(conf.Concurrency)
+	} else if con > 0 {
+		p = pool.NewLimited(con)
 	} else {
-		p = pool.NewLimited(rf.Concurrency)
+		var con = float64(runtime.NumCPU() * 2)
+		con = math.Max(con, 4)
+		p = pool.NewLimited(uint(con))
 	}
 	defer p.Close()
 	batch := p.Batch()
@@ -96,18 +98,15 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-var rf rootFlags
-
 func init() {
 	rootCmd.Version = Version
-	var con = float64(runtime.NumCPU() * 2)
-	con = math.Max(con, 4)
+	var tmp uint
 
 	rootCmd.PersistentFlags().UintVarP(
-		&rf.Concurrency,
+		&tmp,
 		"concurrency",
 		"c",
-		uint(con),
+		0,
 		"Concurrency for repository jobs")
 }
 
