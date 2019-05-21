@@ -56,12 +56,9 @@ func runInit(f initFlags, update bool) {
 		BaseUrl:  f.Url,
 	}
 
-	// If concurrency flag is passed during init, we store it in the config
-	if rootCmd.PersistentFlags().Lookup("concurrency") != nil {
-		if rootCmd.PersistentFlags().Lookup("concurrency").Changed {
-			conf.Concurrency = rf.Concurrency
-		}
-	}
+	// GetUint returns 0 if the flag was not set or if there is any error
+	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
+	conf.Concurrency = con
 
 	// Validate data
 	if conf.Token == "" {
