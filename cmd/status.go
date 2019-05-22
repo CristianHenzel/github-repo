@@ -35,9 +35,11 @@ func (statuslist *StatusList) print() {
 
 	w := tabwriter.NewWriter(os.Stdout, 5, 0, 5, space, 0)
 	for _, v := range *statuslist {
-		fmt.Fprintln(w, v.toString())
+		_, err := fmt.Fprintln(w, v.toString())
+		fatalIfError(err)
 	}
-	w.Flush()
+	err := w.Flush()
+	fatalIfError(err)
 }
 
 func init() {
