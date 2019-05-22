@@ -18,6 +18,8 @@ var (
 		"Alternatively, remove %s if you want to initialize the repository again.", configFile)
 	errConfNotExists = fmt.Errorf("Couldn't find configuration file. Make sure that you are in the base " +
 		"directory and that init has been run successfully.")
+	errAuthRequired = "authentication required"
+	errAuthFailed   = "authorization failed"
 )
 
 type repoOperation func(Configuration, Repo, *StatusList)
