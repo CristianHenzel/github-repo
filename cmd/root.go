@@ -38,7 +38,7 @@ func repoLoop(fn repoOperation, msg string) {
 	var p pool.Pool
 
 	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
-	if conf.Concurrency > 0 && con <= 0 {
+	if conf.Concurrency > 0 && con == 0 {
 		p = pool.NewLimited(conf.Concurrency)
 	} else if con > 0 {
 		p = pool.NewLimited(con)
