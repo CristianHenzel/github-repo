@@ -39,9 +39,35 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func runInit(f initFlags, update bool) {
-	ctx := context.Background()
+func newGithubClient(conf Configuration) *github.Client {
+	var ctx = context.Background()
 	var httpClient *http.Client
+
+	// Create github client
+	if conf.Token == "" {
+		httpClient = http.DefaultClient
+	} else {
+		var tokenSource = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
+		httpClient = oauth2.NewClient(ctx, tokenSource)
+	}
+	var client = github.NewClient(httpClient)
+
+	// Set base URL
+	if conf.BaseUrl != "" {
+		var endpoint, err = url.Parse(conf.BaseUrl)
+		fatalIfError(err)
+		if !strings.HasSuffix(endpoint.Path, "/") {
+			endpoint.Path += "/"
+		}
+		client.BaseURL = endpoint
+		client.UploadURL = endpoint
+	}
+
+	return client
+}
+
+func runInit(conf Configuration, update bool) {
+	var ctx = context.Background()
 	var repos []*github.Repository
 
 	if pathExists(configFile) && !update {
@@ -57,28 +83,10 @@ func runInit(f initFlags, update bool) {
 	}
 
 	// GetUint returns 0 if the flag was not set or if there is any error
-	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
+	var con, _ = rootCmd.PersistentFlags().GetUint("concurrency")
 	conf.Concurrency = con
 
-	// Validate data
-	if conf.Token == "" {
-		httpClient = http.DefaultClient
-	} else {
-		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
-		httpClient = oauth2.NewClient(ctx, tokenSource)
-	}
-	client := github.NewClient(httpClient)
-
-	// Set base URL
-	if conf.BaseUrl != "" {
-		endpoint, err := url.Parse(conf.BaseUrl)
-		fatalIfError(err)
-		if !strings.HasSuffix(endpoint.Path, "/") {
-			endpoint.Path += "/"
-		}
-		client.BaseURL = endpoint
-		client.UploadURL = endpoint
-	}
+	var client = newGithubClient(conf)
 
 	user, _, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
