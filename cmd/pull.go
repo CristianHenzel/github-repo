@@ -24,6 +24,11 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 
 	if pathExists(repo.Dir) {
 		repository, err = git.PlainOpen(repo.Dir)
+		// If we get ErrRepositoryNotExists here, it means the repo is broken
+		if err == git.ErrRepositoryNotExists {
+			status.append(repo.Dir, color.RedString("Broken"))
+			return
+		}
 		fatalIfError(err)
 
 		workTree, err := repository.Worktree()
