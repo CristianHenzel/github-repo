@@ -66,7 +66,7 @@ func newGithubClient(conf Configuration) *github.Client {
 	return client
 }
 
-func runInit(conf Configuration, update bool) {
+func runInit(f initFlags, update bool) {
 	var ctx = context.Background()
 	var repos []*github.Repository
 
