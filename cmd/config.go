@@ -12,7 +12,7 @@ const configFile = "gr.conf"
 
 // Repo holds a repository URL and its local directory equivalent
 type Repo struct {
-	Url    string `json:"Url"`
+	URL    string `json:"URL"`
 	Dir    string `json:"Dir"`
 	Branch string `json:"Branch"`
 }
@@ -22,7 +22,7 @@ type Configuration struct {
 	Fullname    string `json:"Fullname"`
 	Username    string `json:"Username"`
 	BaseDir     string `json:"BaseDir"`
-	BaseUrl     string `json:"BaseUrl"`
+	BaseURL     string `json:"BaseURL"`
 	Token       string `json:"Token"`
 	Email       string `json:"Email"`
 	Concurrency uint   `json:"Concurrency"`

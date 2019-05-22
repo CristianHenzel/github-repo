@@ -14,7 +14,7 @@ func init() {
 				initFlags{
 					conf.Username,
 					conf.Token,
-					conf.BaseUrl,
+					conf.BaseURL,
 					conf.BaseDir},
 				true)
 		},

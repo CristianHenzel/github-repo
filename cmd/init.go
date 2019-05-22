@@ -14,7 +14,7 @@ import (
 type initFlags struct {
 	User  string
 	Token string
-	Url   string
+	URL   string
 	Dir   string
 }
 
@@ -33,7 +33,7 @@ func init() {
 	err := initCmd.MarkFlagRequired("user")
 	fatalIfError(err)
 	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
-	initCmd.Flags().StringVarP(&f.Url, "url", "r", "", "GitHub Enterprise URL")
+	initCmd.Flags().StringVarP(&f.URL, "url", "r", "", "GitHub Enterprise URL")
 	initCmd.Flags().StringVarP(&f.Dir, "dir", "d", "./", "Directory in which repositories will be stored")
 
 	rootCmd.AddCommand(initCmd)
@@ -53,8 +53,8 @@ func newGithubClient(conf Configuration) *github.Client {
 	var client = github.NewClient(httpClient)
 
 	// Set base URL
-	if conf.BaseUrl != "" {
-		var endpoint, err = url.Parse(conf.BaseUrl)
+	if conf.BaseURL != "" {
+		var endpoint, err = url.Parse(conf.BaseURL)
 		fatalIfError(err)
 		if !strings.HasSuffix(endpoint.Path, "/") {
 			endpoint.Path += "/"
@@ -79,7 +79,7 @@ func runInit(f initFlags, update bool) {
 		Username: f.User,
 		Token:    f.Token,
 		BaseDir:  f.Dir,
-		BaseUrl:  f.Url,
+		BaseURL:  f.URL,
 	}
 
 	// GetUint returns 0 if the flag was not set or if there is any error
@@ -129,7 +129,7 @@ func runInit(f initFlags, update bool) {
 		branch := *repo.DefaultBranch
 
 		conf.Repos = append(conf.Repos, Repo{
-			Url:    url,
+			URL:    url,
 			Dir:    dir,
 			Branch: branch,
 		})
