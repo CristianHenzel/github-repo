@@ -22,6 +22,8 @@ var (
 	errAuthFailed   = "authorization failed"
 )
 
+var cFlags Configuration
+
 type repoOperation func(Configuration, Repo, *StatusList)
 
 var doExit func(code int) = os.Exit
@@ -39,11 +41,11 @@ func repoLoop(fn repoOperation, msg string) {
 	var status StatusList
 	var p pool.Pool
 
-	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
-	if conf.Concurrency > 0 && con == 0 {
+	fmt.Println("Concurrency changed:", rootCmd.Flags().Changed("concurrency"))
+	if conf.Concurrency > 0 && !rootCmd.Flags().Changed("concurrency") {
 		p = pool.NewLimited(conf.Concurrency)
-	} else if con > 0 {
-		p = pool.NewLimited(con)
+	} else if cFlags.Concurrency > 0 {
+		p = pool.NewLimited(cFlags.Concurrency)
 	} else {
 		var con = float64(runtime.NumCPU() * 2)
 		con = math.Max(con, 4)
@@ -100,10 +102,9 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Version = Version
-	var tmp uint
 
 	rootCmd.PersistentFlags().UintVarP(
-		&tmp,
+		&cFlags.Concurrency,
 		"concurrency",
 		"c",
 		0,
