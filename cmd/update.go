@@ -10,13 +10,7 @@ func init() {
 		Short: "Update configuration",
 		Run: func(cmd *cobra.Command, args []string) {
 			conf := loadConfig()
-			runInit(
-				initFlags{
-					conf.Username,
-					conf.Token,
-					conf.BaseURL,
-					conf.BaseDir},
-				true)
+			runInit(conf, true)
 		},
 	}
 

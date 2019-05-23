@@ -11,30 +11,21 @@ import (
 	oauth2 "golang.org/x/oauth2"
 )
 
-type initFlags struct {
-	User  string
-	Token string
-	URL   string
-	Dir   string
-}
-
 func init() {
-	var f initFlags
-
 	var initCmd = &cobra.Command{
 		Use:   "init",
 		Short: "Initialize repository mirror",
 		Run: func(cmd *cobra.Command, args []string) {
-			runInit(f, false)
+			runInit(cFlags, false)
 		},
 	}
 
-	initCmd.Flags().StringVarP(&f.User, "user", "u", "", "GitHub username")
+	initCmd.Flags().StringVarP(&cFlags.Username, "user", "u", "", "GitHub username")
 	err := initCmd.MarkFlagRequired("user")
 	fatalIfError(err)
-	initCmd.Flags().StringVarP(&f.Token, "token", "t", "", "GitHub token")
-	initCmd.Flags().StringVarP(&f.URL, "url", "r", "", "GitHub Enterprise URL")
-	initCmd.Flags().StringVarP(&f.Dir, "dir", "d", "./", "Directory in which repositories will be stored")
+	initCmd.Flags().StringVarP(&cFlags.Token, "token", "t", "", "GitHub token")
+	initCmd.Flags().StringVarP(&cFlags.BaseURL, "url", "r", "", "GitHub Enterprise URL")
+	initCmd.Flags().StringVarP(&cFlags.BaseDir, "dir", "d", ".", "Directory in which repositories will be stored")
 
 	rootCmd.AddCommand(initCmd)
 }
@@ -66,20 +57,13 @@ func newGithubClient(conf Configuration) *github.Client {
 	return client
 }
 
-func runInit(f initFlags, update bool) {
+func runInit(conf Configuration, update bool) {
 	var ctx = context.Background()
 	var repos []*github.Repository
 
 	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
 		return
-	}
-
-	conf := Configuration{
-		Username: f.User,
-		Token:    f.Token,
-		BaseDir:  f.Dir,
-		BaseURL:  f.URL,
 	}
 
 	// GetUint returns 0 if the flag was not set or if there is any error
@@ -116,6 +100,8 @@ func runInit(f initFlags, update bool) {
 		repos, _, err = client.Repositories.List(ctx, "", nil)
 	}
 	fatalIfError(err)
+
+	conf.Repos = []Repo{}
 	for _, repo := range repos {
 		url := *repo.CloneURL
 		if conf.Token != "" {
