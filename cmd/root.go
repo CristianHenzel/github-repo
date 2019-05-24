@@ -41,7 +41,6 @@ func repoLoop(fn repoOperation, msg string) {
 	var status StatusList
 	var p pool.Pool
 
-	fmt.Println("Concurrency changed:", rootCmd.Flags().Changed("concurrency"))
 	if conf.Concurrency > 0 && !rootCmd.Flags().Changed("concurrency") {
 		p = pool.NewLimited(conf.Concurrency)
 	} else if cFlags.Concurrency > 0 {
