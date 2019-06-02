@@ -1,48 +1,45 @@
-GOCMD   := go
-GOBUILD := $(GOCMD) build
-GOCLEAN := $(GOCMD) clean
-GOGET   := $(GOCMD) get
-INSTALL := install
-UPX     := upx
-
-BUILDDATE := $(shell date --rfc-3339=seconds)
-VERSION   := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
-ifeq ($(VERSION),)
-	VERSION := dev-$(shell git rev-parse --short HEAD)
-endif
-
+GOCMD         := go
+GOBUILD       := $(GOCMD) build
+GOCLEAN       := $(GOCMD) clean
+GOGET         := $(GOCMD) get
+INSTALL       := install
+UPX           := upx
 OUTDIR        := out
-ARCH_NATIVE   := $(shell go env GOARCH)
-BINARY_NATIVE := $(OUTDIR)/gr-$(ARCH_NATIVE)-$(VERSION)
-ifeq ($(ARCH_NATIVE),amd64)
-	ARCH_FOREIGN := 386
-else
-	ARCH_FOREIGN := amd64
-endif
-BINARY_FOREIGN := $(OUTDIR)/gr-$(ARCH_FOREIGN)-$(VERSION)
-INSTALL_PATH   := /usr/bin/gr
-LDFLAGS        := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
+INSTALL_PATH  := /usr/bin/gr
+
+BUILDDATE     := $(shell date --rfc-3339=seconds)
+VERSION_PROD  := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
+VERSION_DEV   := dev-$(shell git rev-parse --short HEAD)
+VERSION       := $(or $(VERSION_PROD),$(VERSION_DEV))
+
+BINARY_386    := $(OUTDIR)/gr-$(VERSION)-386
+BINARY_AMD64  := $(OUTDIR)/gr-$(VERSION)-amd64
+BINARY_NATIVE := $(OUTDIR)/gr-$(VERSION)-$(shell go env GOARCH)
+BINARIES      := $(sort $(BINARY_386) $(BINARY_AMD64) $(BINARY_NATIVE))
+LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
 
 .PHONY: all
-all: $(BINARY_NATIVE) $(BINARY_FOREIGN)
+all: $(BINARIES)
 
 .PHONY: clean
 clean:
 	$(GOCLEAN)
-	rm -f $(BINARY_NATIVE) $(BINARY_FOREIGN)
+	rm -f $(BINARIES)
 	rmdir $(OUTDIR)
 
 .PHONY: deps
 deps:
-	$(GOGET) -d -v ./...
+	$(GOGET) -d -t -v ./...
 
-out:
+$(OUTDIR):
 	mkdir -p $@
 
-$(BINARY_FOREIGN) : export GOARCH = $(ARCH_FOREIGN)
-$(BINARY_NATIVE) $(BINARY_FOREIGN) : | deps $(OUTDIR)
+$(BINARY_386)   : export GOARCH = 386
+$(BINARY_AMD64) : export GOARCH = amd64
+$(BINARIES) : | deps $(OUTDIR)
 	$(GOBUILD) -ldflags="$(LDFLAGS)" -o $@
 	$(UPX) -9 $@
+	sha1sum $@ | awk '{print $$1}' > $@.sha1sum
 
 .PHONY: test
 test:
