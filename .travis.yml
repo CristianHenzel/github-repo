@@ -1,10 +1,25 @@
 language: go
 
-go:
-  - "1.11"
-  - "1.12"
-  - "1.12.x"
+matrix:
+  include:
+    - go: 1.11.x
+    - go: 1.12.x
+    - go: 1.x
+      env: LATEST=true
 
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y upx-ucl
+
+deploy:
+  api_key:
+    secure: kNDNtPAOURYSz7l+EBMHsB8bwnSm3NJkOHDDqr9jpRJZw6c4xfFTBmNjL/Z1vzZlFe5f4Z2adhFDYmzY3fk1Bgx/vKp0xfLVRqc95eEqthr3XYDnXavIeAJiMsLUmgspbqHA5+Z6TKhHRmA2QW15ALBFq4wEkaLh2PubyXX0wq95yZ7BRt5syaWr5kidc2f7GbO/pf0ZdJ8Kzc+wFKcjgnlJar5ci6/+BnR80n4TEsvZJ0Hg68cOr3Bm92hBiEdXwomX5ua14Jb/Q8Ahy9SpVg0ppBF0zfQVXldcOi7gTfA/f0h1XlMg0SGBidFuZElVvonYAgvROPDbSUoiBr5y4VEDnMlJLNAWJ08PmoLZLkCM/bqC3IYNk2EuYROm+JllatoMqEWm58d2BcVBZO5l4cWX/U9LNTnvJl1fLNqsr9Xv2erJkXf5r4/AN/GSv8ikyU+Hii9VxTx/KxSc9OMBDYd3vZRt/2RVWcjZxiY5waPsD5BA/cnV+IvZokdjNsfwQF1NZ0jhDvzoBcJV+lzS0JiAxhtOWoOl2wnDtxwuDI8xQcbzYSEtT2LEAguptJXjnQOp3lPhJQHYXfyLT5GvV0n+bNTEYuZPdO9hFszek+TmqPoz83Es/9s+zOwsQxhARYJBz5Z9hwIQFFLiRyc4mzU5NEKM6I703NNfgCVcye8=
+  draft: true
+  file_glob: true
+  file: out/gr-*
+  on:
+    condition: $LATEST = true
+    repo: CristianHenzel/github-repo
+    tags: true
+  provider: releases
+  skip_cleanup: true
