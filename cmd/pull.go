@@ -18,6 +18,20 @@ func init() {
 	rootCmd.AddCommand(pullCmd)
 }
 
+func updateRepoConfig(conf Configuration, repository *git.Repository) {
+	repoConf, err := repository.Config()
+	fatalIfError(err)
+
+	section := repoConf.Raw.Section("user")
+	section.SetOption("name", conf.Fullname)
+	section.SetOption("email", conf.Email)
+	err = repoConf.Validate()
+	fatalIfError(err)
+
+	err = repository.Storer.SetConfig(repoConf)
+	fatalIfError(err)
+}
+
 func runPull(conf Configuration, repo Repo, status *StatusList) {
 	var repository *git.Repository
 	var err error
@@ -52,15 +66,7 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 		fatalIfError(err)
 	}
 
-	repoConf, err := repository.Config()
-	fatalIfError(err)
-	section := repoConf.Raw.Section("user")
-	section.SetOption("name", conf.Fullname)
-	section.SetOption("email", conf.Email)
-	err = repoConf.Validate()
-	fatalIfError(err)
-	err = repository.Storer.SetConfig(repoConf)
-	fatalIfError(err)
+	updateRepoConfig(conf, repository)
 
 	status.append(repo.Dir, color.GreenString("OK"))
 }
