@@ -12,9 +12,9 @@ VERSION_PROD  := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
 VERSION_DEV   := $(shell git describe)
 VERSION       := $(or $(VERSION_PROD),$(VERSION_DEV))
 
-BINARY_386    := $(OUTDIR)/gr-$(VERSION)-386
-BINARY_AMD64  := $(OUTDIR)/gr-$(VERSION)-amd64
-BINARY_NATIVE := $(OUTDIR)/gr-$(VERSION)-$(shell go env GOARCH)
+BINARY_386    := $(OUTDIR)/gr_linux_386
+BINARY_AMD64  := $(OUTDIR)/gr_linux_amd64
+BINARY_NATIVE := $(OUTDIR)/gr_$(shell go env GOOS)_$(shell go env GOARCH)
 BINARIES      := $(sort $(BINARY_386) $(BINARY_AMD64) $(BINARY_NATIVE))
 LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
 
@@ -35,7 +35,9 @@ $(OUTDIR):
 	mkdir -p $@
 
 $(BINARY_386)   : export GOARCH = 386
+	export GOOS = linux
 $(BINARY_AMD64) : export GOARCH = amd64
+	export GOOS = linux
 $(BINARIES) : | deps $(OUTDIR)
 	$(GOBUILD) -ldflags="$(LDFLAGS)" -o $@
 	$(UPX) -9 $@
