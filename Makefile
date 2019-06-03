@@ -9,7 +9,7 @@ INSTALL_PATH  := /usr/bin/gr
 
 BUILDDATE     := $(shell date --rfc-3339=seconds)
 VERSION_PROD  := $(shell git describe --exact-match --abbrev=0 2>/dev/null)
-VERSION_DEV   := dev-$(shell git rev-parse --short HEAD)
+VERSION_DEV   := $(shell git describe)
 VERSION       := $(or $(VERSION_PROD),$(VERSION_DEV))
 
 BINARY_386    := $(OUTDIR)/gr-$(VERSION)-386
@@ -39,7 +39,7 @@ $(BINARY_AMD64) : export GOARCH = amd64
 $(BINARIES) : | deps $(OUTDIR)
 	$(GOBUILD) -ldflags="$(LDFLAGS)" -o $@
 	$(UPX) -9 $@
-	sha1sum $@ | awk '{print $$1}' > $@.sha1sum
+	sha256sum $@ | awk '{print $$1}' > $@.sha256
 
 .PHONY: test
 test:
