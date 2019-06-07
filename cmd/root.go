@@ -16,8 +16,9 @@ var (
 	errConfExists = fmt.Errorf("Configuration file already exists in current directory. "+
 		"Please run 'update' if you want to update your settings. "+
 		"Alternatively, remove %s if you want to initialize the repository again.", configFile)
-	errConfNotExists = fmt.Errorf("Couldn't find configuration file. Make sure that you are in the base " +
-		"directory and that init has been run successfully.")
+	errConfNotExists = fmt.Errorf("Couldn't find configuration file in current directory or any " +
+		"parent directory. Make sure that you are in the correct directory and that init has " +
+		"been run successfully.")
 	errAuthRequired = "authentication required"
 	errAuthFailed   = "authorization failed"
 )

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"syscall"
 )
 
@@ -32,18 +33,33 @@ type Configuration struct {
 func loadConfig() Configuration {
 	var conf Configuration
 
-	bytes, err := ioutil.ReadFile(configFile)
-	e, ok := err.(*os.PathError)
-	if ok && e.Err == syscall.ENOENT {
-		fatalError(errConfNotExists)
+	cwd, err := os.Getwd()
+	fatalIfError(err)
+
+	for {
+		filePath := path.Join(cwd, configFile)
+
+		bytes, err := ioutil.ReadFile(filePath)
+		e, ok := err.(*os.PathError)
+		if ok && e.Err == syscall.ENOENT {
+			if cwd == "/" {
+				fatalError(errConfNotExists)
+				return conf
+			}
+
+			cwd = path.Dir(cwd)
+			continue
+		}
+		fatalIfError(err)
+
+	        err = json.Unmarshal(bytes, &conf)
+	        fatalIfError(err)
+
+		err = os.Chdir(cwd)
+		fatalIfError(err)
+
 		return conf
 	}
-	fatalIfError(err)
-
-	err = json.Unmarshal(bytes, &conf)
-	fatalIfError(err)
-
-	return conf
 }
 
 func (conf *Configuration) save() {
