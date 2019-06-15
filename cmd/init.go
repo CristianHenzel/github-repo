@@ -21,11 +21,11 @@ func init() {
 	}
 
 	initCmd.Flags().StringVarP(&cFlags.Username, "user", "u", "", "GitHub username")
-	err := initCmd.MarkFlagRequired("user")
-	fatalIfError(err)
+	fatalIfError(initCmd.MarkFlagRequired("user"))
 	initCmd.Flags().StringVarP(&cFlags.Token, "token", "t", "", "GitHub token")
 	initCmd.Flags().StringVarP(&cFlags.BaseURL, "url", "r", "", "GitHub Enterprise URL")
 	initCmd.Flags().StringVarP(&cFlags.BaseDir, "dir", "d", ".", "Directory in which repositories will be stored")
+	initCmd.Flags().BoolVarP(&cFlags.SubDirs, "subdirs", "s", false, "Enable creation of separate subdirectories for each org/user")
 
 	rootCmd.AddCommand(initCmd)
 }
@@ -104,13 +104,19 @@ func runInit(conf Configuration, update bool) {
 	conf.Repos = []Repo{}
 	for _, repo := range repos {
 		url := *repo.CloneURL
+		dir := *repo.FullName
+
 		if conf.Token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
 			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
 			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
 		}
-		dir := strings.Replace(*repo.FullName, "/", "_", -1)
-		dir = strings.Replace(dir, conf.Username+"_", "", -1)
+
+		if conf.SubDirs == false {
+			dir = strings.Replace(dir, "/", "_", -1)
+			dir = strings.Replace(dir, conf.Username+"_", "", -1)
+		}
+
 		dir = conf.BaseDir + "/" + dir
 		branch := *repo.DefaultBranch
 

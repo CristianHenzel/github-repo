@@ -27,6 +27,7 @@ type Configuration struct {
 	Token       string `json:"Token"`
 	Email       string `json:"Email"`
 	Concurrency uint   `json:"Concurrency"`
+	SubDirs     bool   `json:"SubDirs"`
 	Repos       []Repo `json:"Repos"`
 }
 
