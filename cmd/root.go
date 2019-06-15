@@ -27,7 +27,7 @@ var cFlags Configuration
 
 type repoOperation func(Configuration, Repo, *StatusList)
 
-var doExit func(code int) = os.Exit
+var doExit = os.Exit
 var fatalError = fatalIfError
 
 func repoWorkUnit(fn repoOperation, conf Configuration, repo Repo, status *StatusList) pool.WorkFunc {
