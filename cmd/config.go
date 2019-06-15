@@ -53,8 +53,8 @@ func loadConfig() Configuration {
 		}
 		fatalIfError(err)
 
-	        err = json.Unmarshal(bytes, &conf)
-	        fatalIfError(err)
+		err = json.Unmarshal(bytes, &conf)
+		fatalIfError(err)
 
 		err = os.Chdir(cwd)
 		fatalIfError(err)
