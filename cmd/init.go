@@ -57,9 +57,49 @@ func newGithubClient(conf Configuration) *github.Client {
 	return client
 }
 
+func getRepos(ctx context.Context, conf Configuration, client *github.Client) (repositories []Repo) {
+	var repos []*github.Repository
+	var err error
+
+	if conf.Token == "" {
+		// Get public repositories for specified username
+		repos, _, err = client.Repositories.List(ctx, conf.Username, nil)
+	} else {
+		// Get all repositories for authenticated user
+		repos, _, err = client.Repositories.List(ctx, "", nil)
+	}
+	fatalIfError(err)
+
+	for _, repo := range repos {
+		url := *repo.CloneURL
+		dir := *repo.FullName
+
+		if conf.Token != "" {
+			urlPrefix := conf.Username + ":" + conf.Token + "@"
+			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
+			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
+		}
+
+		if !conf.SubDirs {
+			dir = strings.Replace(dir, "/", "_", -1)
+			dir = strings.Replace(dir, conf.Username+"_", "", -1)
+		}
+
+		dir = conf.BaseDir + "/" + dir
+		branch := *repo.DefaultBranch
+
+		repositories = append(repositories, Repo{
+			URL:    url,
+			Dir:    dir,
+			Branch: branch,
+		})
+	}
+
+	return repositories
+}
+
 func runInit(conf Configuration, update bool) {
 	var ctx = context.Background()
-	var repos []*github.Repository
 
 	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
@@ -92,40 +132,7 @@ func runInit(conf Configuration, update bool) {
 		conf.Email = conf.Username + "@users.noreply.github.com"
 	}
 
-	if conf.Token == "" {
-		// Get public repositories for specified username
-		repos, _, err = client.Repositories.List(ctx, conf.Username, nil)
-	} else {
-		// Get all repositories for authenticated user
-		repos, _, err = client.Repositories.List(ctx, "", nil)
-	}
-	fatalIfError(err)
-
-	conf.Repos = []Repo{}
-	for _, repo := range repos {
-		url := *repo.CloneURL
-		dir := *repo.FullName
-
-		if conf.Token != "" {
-			urlPrefix := conf.Username + ":" + conf.Token + "@"
-			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
-			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
-		}
-
-		if conf.SubDirs == false {
-			dir = strings.Replace(dir, "/", "_", -1)
-			dir = strings.Replace(dir, conf.Username+"_", "", -1)
-		}
-
-		dir = conf.BaseDir + "/" + dir
-		branch := *repo.DefaultBranch
-
-		conf.Repos = append(conf.Repos, Repo{
-			URL:    url,
-			Dir:    dir,
-			Branch: branch,
-		})
-	}
+	conf.Repos = getRepos(ctx, conf, client)
 
 	// Write config
 	conf.save()
