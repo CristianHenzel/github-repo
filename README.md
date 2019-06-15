@@ -10,6 +10,12 @@ gr is a GitHub repository management tool
 **WARNING!** gr stores all data (including your token) in a plaintext file. If you consider this a security issue or if you are sharing your machine with other people, do not use this tool!
 
 # Installation
+### Using prebuilt binaries:
+```
+curl -L https://github.com/CristianHenzel/github-repo/releases/latest/download/gr_linux_amd64 -o /usr/local/bin/gr
+chmod 0755 /usr/local/bin/gr
+```
+### Building from source:
 Prerequisites: git, golang, make, upx
 
 To install prerequisites on debian/ubuntu, run:
