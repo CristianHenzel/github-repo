@@ -2,6 +2,8 @@
 !.gitignore
 !.travis.yml
 !cmd
+!go.mod
+!go.sum
 !LICENSE
 !main.go
 !Makefile
