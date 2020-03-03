@@ -73,6 +73,13 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 	for _, repo := range repos {
 		url := *repo.CloneURL
 		dir := *repo.FullName
+		parent := ""
+
+		if *repo.Fork {
+			repo, _, err = client.Repositories.GetByID(ctx, *repo.ID)
+			fatalIfError(err)
+			parent = *repo.Parent.CloneURL
+		}
 
 		if conf.Token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
@@ -92,6 +99,7 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 			URL:    url,
 			Dir:    dir,
 			Branch: branch,
+			Parent: parent,
 		})
 	}
 
