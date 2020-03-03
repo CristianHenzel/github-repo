@@ -23,6 +23,11 @@ LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDA
 .PHONY: all
 all: $(BINARIES)
 
+.PHONY: check
+check:
+	docker run --rm -v $(shell pwd):/app -w /app golang gofmt -d ./
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint golangci-lint run
+
 .PHONY: clean
 clean:
 	$(GOCLEAN)
