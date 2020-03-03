@@ -25,6 +25,7 @@ all: $(BINARIES)
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARIES)
+	rm -rf $(OUTDIR)/*.sha256
 	rmdir $(OUTDIR)
 
 .PHONY: deps
