@@ -16,6 +16,7 @@ type Repo struct {
 	URL    string `json:"URL"`
 	Dir    string `json:"Dir"`
 	Branch string `json:"Branch"`
+	Parent string `json:"Parent"`
 }
 
 // Configuration holds git configuration data
