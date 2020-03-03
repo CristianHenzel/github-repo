@@ -4,6 +4,7 @@ import (
 	color "github.com/fatih/color"
 	cobra "github.com/spf13/cobra"
 	git "gopkg.in/src-d/go-git.v4"
+	gitconfig "gopkg.in/src-d/go-git.v4/config"
 )
 
 func init() {
@@ -67,6 +68,14 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 	}
 
 	updateRepoConfig(conf, repository)
+
+	if repo.Parent != "" {
+		_, err := repository.CreateRemote(&gitconfig.RemoteConfig{
+			Name: "upstream",
+			URLs: []string{repo.Parent},
+		})
+		fatalIfError(err)
+	}
 
 	status.append(repo.Dir, color.GreenString("OK"))
 }
