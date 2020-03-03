@@ -18,6 +18,8 @@ BINARY_NATIVE := $(OUTDIR)/gr_$(shell go env GOOS)_$(shell go env GOARCH)
 BINARIES      := $(sort $(BINARY_386) $(BINARY_AMD64) $(BINARY_NATIVE))
 LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
 
+.DEFAULT_GOAL := $(BINARY_NATIVE)
+
 .PHONY: all
 all: $(BINARIES)
 
