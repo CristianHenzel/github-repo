@@ -2,14 +2,29 @@ package cmd
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os/user"
 	"strings"
 
 	github "github.com/google/go-github/github"
 	cobra "github.com/spf13/cobra"
 	oauth2 "golang.org/x/oauth2"
+	gitconfig "gopkg.in/src-d/go-git.v4/config"
 )
+
+var (
+	gitAliasesRepo = "gr-git-aliases"
+	gitAliasesFile = "aliases.json"
+)
+
+type GitAlias struct {
+	Alias   string `json:"alias"`
+	Command string `json:"command"`
+}
 
 func init() {
 	var initCmd = &cobra.Command{
@@ -57,6 +72,36 @@ func newGithubClient(conf Configuration) *github.Client {
 	return client
 }
 
+func addGitAliases(ctx context.Context, conf Configuration, client *github.Client, repo *github.Repository) {
+	var ga []GitAlias
+	aliasesContent, _, _, err := client.Repositories.GetContents(ctx, conf.Username, gitAliasesRepo, gitAliasesFile, nil)
+	fatalIfError(err)
+	aliasesBytes, err := base64.StdEncoding.DecodeString(*aliasesContent.Content)
+	fatalIfError(err)
+	fatalIfError(json.Unmarshal(aliasesBytes, &ga))
+
+	cfg := gitconfig.NewConfig()
+	usr, err := user.Current()
+	fatalIfError(err)
+
+	gitconfigPath := usr.HomeDir + "/.gitconfig"
+	b, err := ioutil.ReadFile(gitconfigPath)
+	fatalIfError(err)
+
+	fatalIfError(cfg.Unmarshal(b))
+
+	section := cfg.Raw.Section("alias")
+	for _, alias := range ga {
+		section.SetOption(alias.Alias, alias.Command)
+	}
+
+	fatalIfError(cfg.Validate())
+	bytes, err := cfg.Marshal()
+	fatalIfError(err)
+
+	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0644))
+}
+
 func getRepos(ctx context.Context, conf Configuration, client *github.Client) (repositories []Repo) {
 	var repos []*github.Repository
 	var err error
@@ -74,6 +119,10 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 		url := *repo.CloneURL
 		dir := *repo.FullName
 		parent := ""
+
+		if *repo.Name == gitAliasesRepo {
+			addGitAliases(ctx, conf, client, repo)
+		}
 
 		if *repo.Fork {
 			repo, _, err = client.Repositories.GetByID(ctx, *repo.ID)
