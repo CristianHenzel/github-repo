@@ -68,8 +68,9 @@ func runPull(conf Configuration, repo Repo, status *StatusList) {
 	}
 
 	updateRepoConfig(conf, repository)
+	_, err = repository.Remote("upstream")
 
-	if repo.Parent != "" {
+	if repo.Parent != "" && err == git.ErrRemoteNotFound {
 		_, err := repository.CreateRemote(&gitconfig.RemoteConfig{
 			Name: "upstream",
 			URLs: []string{repo.Parent},
