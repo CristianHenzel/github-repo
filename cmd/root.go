@@ -44,12 +44,14 @@ func repoLoop(fn repoOperation, msg string) {
 
 	if conf.Concurrency > 0 && !rootCmd.Flags().Changed("concurrency") {
 		p = pool.NewLimited(conf.Concurrency)
-	} else if cFlags.Concurrency > 0 {
-		p = pool.NewLimited(cFlags.Concurrency)
 	} else {
-		var con = float64(runtime.NumCPU() * 2)
-		con = math.Max(con, 4)
-		p = pool.NewLimited(uint(con))
+		if cFlags.Concurrency > 0 {
+			p = pool.NewLimited(cFlags.Concurrency)
+		} else {
+			var con = float64(runtime.NumCPU() * 2)
+			con = math.Max(con, 4)
+			p = pool.NewLimited(uint(con))
+		}
 	}
 	defer p.Close()
 	batch := p.Batch()

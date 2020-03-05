@@ -21,7 +21,7 @@ var (
 	gitAliasesFile = "aliases.json"
 )
 
-type GitAlias struct {
+type gitAlias struct {
 	Alias   string `json:"alias"`
 	Command string `json:"command"`
 }
@@ -73,7 +73,7 @@ func newGithubClient(conf Configuration) *github.Client {
 }
 
 func addGitAliases(ctx context.Context, conf Configuration, client *github.Client, repo *github.Repository) {
-	var ga []GitAlias
+	var ga []gitAlias
 	aliasesContent, _, _, err := client.Repositories.GetContents(ctx, conf.Username, gitAliasesRepo, gitAliasesFile, nil)
 	fatalIfError(err)
 	aliasesBytes, err := base64.StdEncoding.DecodeString(*aliasesContent.Content)
