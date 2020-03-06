@@ -27,6 +27,10 @@ type gitAlias struct {
 }
 
 func init() {
+	if cFlags == nil {
+		cFlags = &Configuration{}
+	}
+
 	var initCmd = &cobra.Command{
 		Use:   "init",
 		Short: "Initialize repository mirror",
@@ -45,7 +49,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func newGithubClient(conf Configuration) *github.Client {
+func newGithubClient(conf *Configuration) *github.Client {
 	var ctx = context.Background()
 	var httpClient *http.Client
 
@@ -72,7 +76,7 @@ func newGithubClient(conf Configuration) *github.Client {
 	return client
 }
 
-func addGitAliases(ctx context.Context, conf Configuration, client *github.Client, repo *github.Repository) {
+func addGitAliases(ctx context.Context, conf *Configuration, client *github.Client) {
 	var ga []gitAlias
 	aliasesContent, _, _, err := client.Repositories.GetContents(ctx, conf.Username, gitAliasesRepo, gitAliasesFile, nil)
 	fatalIfError(err)
@@ -102,7 +106,7 @@ func addGitAliases(ctx context.Context, conf Configuration, client *github.Clien
 	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0644))
 }
 
-func getRepos(ctx context.Context, conf Configuration, client *github.Client) (repositories []Repo) {
+func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (repositories []Repo) {
 	var repos []*github.Repository
 	var err error
 
@@ -116,12 +120,12 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 	fatalIfError(err)
 
 	for _, repo := range repos {
-		url := *repo.CloneURL
+		cloneURL := *repo.CloneURL
 		dir := *repo.FullName
 		parent := ""
 
 		if *repo.Name == gitAliasesRepo {
-			addGitAliases(ctx, conf, client, repo)
+			addGitAliases(ctx, conf, client)
 		}
 
 		if *repo.Fork {
@@ -132,8 +136,8 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 
 		if conf.Token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
-			url = strings.Replace(url, "https://", "https://"+urlPrefix, -1)
-			url = strings.Replace(url, "http://", "http://"+urlPrefix, -1)
+			cloneURL = strings.Replace(cloneURL, "https://", "https://"+urlPrefix, -1)
+			cloneURL = strings.Replace(cloneURL, "http://", "http://"+urlPrefix, -1)
 		}
 
 		if !conf.SubDirs {
@@ -145,7 +149,7 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 		branch := *repo.DefaultBranch
 
 		repositories = append(repositories, Repo{
-			URL:    url,
+			URL:    cloneURL,
 			Dir:    dir,
 			Branch: branch,
 			Parent: parent,
@@ -155,7 +159,7 @@ func getRepos(ctx context.Context, conf Configuration, client *github.Client) (r
 	return repositories
 }
 
-func runInit(conf Configuration, update bool) {
+func runInit(conf *Configuration, update bool) {
 	var ctx = context.Background()
 
 	if pathExists(configFile) && !update {
@@ -169,22 +173,22 @@ func runInit(conf Configuration, update bool) {
 
 	var client = newGithubClient(conf)
 
-	user, _, err := client.Users.Get(ctx, conf.Username)
+	usr, _, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
 		fatalIfError(err)
 		return
 	}
 
-	conf.Username = user.GetLogin()
+	conf.Username = usr.GetLogin()
 
-	if user.GetName() != "" {
-		conf.Fullname = user.GetName()
+	if usr.GetName() != "" {
+		conf.Fullname = usr.GetName()
 	} else {
-		conf.Fullname = user.GetLogin()
+		conf.Fullname = usr.GetLogin()
 	}
 
-	if user.GetEmail() != "" {
-		conf.Email = user.GetEmail()
+	if usr.GetEmail() != "" {
+		conf.Email = usr.GetEmail()
 	} else {
 		conf.Email = conf.Username + "@users.noreply.github.com"
 	}

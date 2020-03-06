@@ -19,7 +19,7 @@ func init() {
 	rootCmd.AddCommand(pullCmd)
 }
 
-func updateRepoConfig(conf Configuration, repository *git.Repository) {
+func updateRepoConfig(conf *Configuration, repository *git.Repository) {
 	repoConf, err := repository.Config()
 	fatalIfError(err)
 
@@ -33,7 +33,7 @@ func updateRepoConfig(conf Configuration, repository *git.Repository) {
 	fatalIfError(err)
 }
 
-func runPull(conf Configuration, repo Repo, status *StatusList) {
+func runPull(conf *Configuration, repo Repo, status *StatusList) {
 	var repository *git.Repository
 	var err error
 
