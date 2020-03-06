@@ -20,7 +20,7 @@ func init() {
 	rootCmd.AddCommand(pushCmd)
 }
 
-func runPush(conf Configuration, repo Repo, status *StatusList) {
+func runPush(conf *Configuration, repo Repo, status *StatusList) {
 	repository, err := git.PlainOpen(repo.Dir)
 	if err == git.ErrRepositoryNotExists {
 		status.append(repo.Dir, color.RedString("Absent"))

@@ -54,7 +54,7 @@ func init() {
 	rootCmd.AddCommand(statusCmd)
 }
 
-func runStatus(conf Configuration, repo Repo, status *StatusList) {
+func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 	var ret string
 
 	if !pathExists(repo.Dir) {

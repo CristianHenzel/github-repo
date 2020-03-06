@@ -32,8 +32,8 @@ type Configuration struct {
 	Repos       []Repo `json:"Repos"`
 }
 
-func loadConfig() Configuration {
-	var conf Configuration
+func loadConfig() *Configuration {
+	var conf *Configuration = &Configuration{}
 
 	cwd, err := os.Getwd()
 	fatalIfError(err)
@@ -54,7 +54,7 @@ func loadConfig() Configuration {
 		}
 		fatalIfError(err)
 
-		err = json.Unmarshal(bytes, &conf)
+		err = json.Unmarshal(bytes, conf)
 		fatalIfError(err)
 
 		err = os.Chdir(cwd)

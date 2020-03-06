@@ -23,14 +23,14 @@ var (
 	errAuthFailed   = "authorization failed"
 )
 
-var cFlags Configuration
+var cFlags *Configuration
 
-type repoOperation func(Configuration, Repo, *StatusList)
+type repoOperation func(*Configuration, Repo, *StatusList)
 
 var doExit = os.Exit
 var fatalError = fatalIfError
 
-func repoWorkUnit(fn repoOperation, conf Configuration, repo Repo, status *StatusList) pool.WorkFunc {
+func repoWorkUnit(fn repoOperation, conf *Configuration, repo Repo, status *StatusList) pool.WorkFunc {
 	return func(wu pool.WorkUnit) (interface{}, error) {
 		fn(conf, repo, status)
 		return nil, nil
