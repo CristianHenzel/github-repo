@@ -33,7 +33,7 @@ make install
 # Usage
 First, create the configuration:
 ```
-gr init -u USERNAME -t TOKEN
+gr init -u USERNAME -t TOKEN -d SOMEDIR -c 10
 ```
 or, if you are using GitHub Enterprise:
 ```
