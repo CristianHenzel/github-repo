@@ -18,6 +18,9 @@ BINARY_NATIVE := $(OUTDIR)/gr_$(shell go env GOOS)_$(shell go env GOARCH)
 BINARIES      := $(sort $(BINARY_386) $(BINARY_AMD64) $(BINARY_NATIVE))
 LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
 
+COVERAGE_OUTPUT := coverage.out
+COVERAGE_HTML   := coverage.html
+
 .DEFAULT_GOAL := $(BINARY_NATIVE)
 
 .PHONY: all
@@ -25,8 +28,20 @@ all: $(BINARIES)
 
 .PHONY: check
 check:
-	docker run --rm -v $(shell pwd):/app -w /app golang gofmt -d ./
-	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint golangci-lint run
+	#docker run --rm -v $(shell pwd):/app:ro -w /app golang gofmt -d ./
+	docker run --rm -v $(shell pwd):/app:ro -w /app golangci/golangci-lint golangci-lint run
+	#docker run --rm -v $(shell pwd):/app:ro -w /app georgeok/goreportcard-cli /bin/sh -c "go get -d ./... && go get github.com/georgeok/goreportcard/cmd/goreportcard-cli && goreportcard-cli -v"
+
+lint:
+	$(GOGET) -v github.com/alecthomas/gometalinter
+	$(GOGET) -v github.com/gordonklaus/ineffassign
+	$(GOGET) -v github.com/client9/misspell/cmd/misspell
+	$(GOGET) -v golang.org/x/lint/golint
+	$(GOGET) -v github.com/fzipp/gocyclo
+	$(GOGET) -v github.com/gojp/goreportcard/cmd/goreportcard-cli
+	$(GOGET) -v github.com/golangci/golangci-lint/cmd/golangci-lint
+	goreportcard-cli -v
+	golangci-lint run
 
 .PHONY: clean
 clean:
@@ -52,8 +67,10 @@ $(BINARIES) : | deps $(OUTDIR)
 	sha256sum $@ | awk '{print $$1}' > $@.sha256
 
 .PHONY: test
-test:
-	echo "Not implemented"
+test: deps
+	go test -v -cover -covermode=atomic -coverprofile=$(COVERAGE_OUTPUT) ./cmd
+	go tool cover -html=$(COVERAGE_OUTPUT) -o=$(COVERAGE_HTML)
+	cp $(COVERAGE_HTML) /data/html/index.html
 
 .PHONY: install
 install: $(BINARY_NATIVE)
