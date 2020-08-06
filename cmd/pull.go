@@ -44,10 +44,17 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			status.append(repo.Dir, color.RedString("Broken"))
 			return
 		}
-		fatalIfError(err)
+
+		if err != nil {
+			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			return
+		}
 
 		workTree, err := repository.Worktree()
-		fatalIfError(err)
+		if err != nil {
+			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			return
+		}
 
 		err = workTree.Pull(&git.PullOptions{RemoteName: git.DefaultRemoteName})
 
@@ -61,10 +68,20 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			err = nil
 		}
 
-		fatalIfError(err)
+		if err != nil {
+			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			return
+		}
 	} else {
-		repository, err = git.PlainClone(repo.Dir, false, &git.CloneOptions{URL: repo.URL})
-		fatalIfError(err)
+		repository, err = git.PlainClone(repo.Dir, false, &git.CloneOptions{
+			URL:               repo.URL,
+			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+		})
+
+		if err != nil {
+			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			return
+		}
 	}
 
 	updateRepoConfig(conf, repository)
@@ -75,7 +92,11 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			Name: "upstream",
 			URLs: []string{repo.Parent},
 		})
-		fatalIfError(err)
+
+		if err != nil {
+			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			return
+		}
 	}
 
 	status.append(repo.Dir, color.GreenString("OK"))

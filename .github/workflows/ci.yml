@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    strategy:
+      matrix:
+        go-version: [1.16.x]
+    runs-on: ubuntu-latest
+    name: Build and release gr
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Install prerequisites
+        run: sudo apt-get install make upx-ucl
+      - name: Build gr
+        run: make
+      - name: Release gr
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/gr_*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
