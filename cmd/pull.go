@@ -63,7 +63,10 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 
 		fatalIfError(err)
 	} else {
-		repository, err = git.PlainClone(repo.Dir, false, &git.CloneOptions{URL: repo.URL})
+		repository, err = git.PlainClone(repo.Dir, false, &git.CloneOptions{
+			URL:               repo.URL,
+			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+		})
 		fatalIfError(err)
 	}
 
