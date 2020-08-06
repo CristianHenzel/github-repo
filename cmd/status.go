@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 	"text/tabwriter"
 
 	color "github.com/fatih/color"
@@ -30,11 +31,17 @@ func (statuslist *StatusList) append(repo, state string) {
 }
 
 func (statuslist *StatusList) print() {
+	// Sort list
+	sl := *statuslist
+	sort.Slice(sl, func(i, j int) bool {
+		return sl[i].Repo < sl[j].Repo
+	})
+
 	// Reset
 	fmt.Println()
 
 	w := tabwriter.NewWriter(os.Stdout, 5, 0, 5, space, 0)
-	for _, v := range *statuslist {
+	for _, v := range sl {
 		_, err := fmt.Fprintln(w, v.toString())
 		fatalIfError(err)
 	}
@@ -68,16 +75,28 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 		status.append(repo.Dir, color.RedString("Broken"))
 		return
 	}
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	head, err := repository.Head()
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	workTree, err := repository.Worktree()
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	repoStatus, err := workTree.Status()
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	if repoStatus.IsClean() {
 		ret += color.GreenString("Clean")
@@ -86,9 +105,15 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 	}
 
 	remote, err := repository.Remote(git.DefaultRemoteName)
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 	remoteRef, err := remote.List(&git.ListOptions{})
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	for _, r := range remoteRef {
 		if r.Name().String() == "refs/heads/"+repo.Branch {

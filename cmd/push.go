@@ -26,7 +26,11 @@ func runPush(conf *Configuration, repo Repo, status *StatusList) {
 		status.append(repo.Dir, color.RedString("Absent"))
 		return
 	}
-	fatalIfError(err)
+
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	err = repository.Push(&git.PushOptions{})
 
@@ -46,7 +50,10 @@ func runPush(conf *Configuration, repo Repo, status *StatusList) {
 		err = nil
 	}
 
-	fatalIfError(err)
+	if err != nil {
+		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		return
+	}
 
 	status.append(repo.Dir, color.GreenString("OK"))
 }
