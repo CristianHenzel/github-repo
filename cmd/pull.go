@@ -3,8 +3,8 @@ package cmd
 import (
 	color "github.com/fatih/color"
 	cobra "github.com/spf13/cobra"
-	git "gopkg.in/src-d/go-git.v4"
-	gitconfig "gopkg.in/src-d/go-git.v4/config"
+	git "github.com/go-git/go-git/v5"
+	gitconfig "github.com/go-git/go-git/v5/config"
 )
 
 func init() {
