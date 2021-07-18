@@ -13,7 +13,7 @@ import (
 	github "github.com/google/go-github/github"
 	cobra "github.com/spf13/cobra"
 	oauth2 "golang.org/x/oauth2"
-	gitconfig "gopkg.in/src-d/go-git.v4/config"
+	gitconfig "github.com/go-git/go-git/v5/config"
 )
 
 var (
