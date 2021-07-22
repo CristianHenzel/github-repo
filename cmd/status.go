@@ -55,6 +55,7 @@ func (statuslist *StatusList) print() {
 		_, err := fmt.Fprintln(w, v.toString())
 		fatalIfError(err)
 	}
+
 	err := w.Flush()
 	fatalIfError(err)
 }
@@ -85,6 +86,7 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 		status.append(repo.Dir, color.RedString("Broken"))
 		return
 	}
+
 	if err != nil {
 		status.appendError(repo.Dir, err)
 		return
@@ -119,6 +121,7 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 		status.appendError(repo.Dir, err)
 		return
 	}
+
 	remoteRef, err := remote.List(&git.ListOptions{})
 	if err != nil {
 		status.appendError(repo.Dir, err)
@@ -132,6 +135,7 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 			} else {
 				ret += "\t" + color.RedString("Stale")
 			}
+
 			break
 		}
 	}

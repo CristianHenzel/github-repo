@@ -50,8 +50,9 @@ func init() {
 }
 
 func newGithubClient(conf *Configuration) *github.Client {
-	ctx := context.Background()
 	var httpClient *http.Client
+
+	ctx := context.Background()
 
 	// Create github client
 	if conf.Token == "" {
@@ -60,15 +61,18 @@ func newGithubClient(conf *Configuration) *github.Client {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
+
 	client := github.NewClient(httpClient)
 
 	// Set base URL
 	if conf.BaseURL != "" {
 		endpoint, err := url.Parse(conf.BaseURL)
 		fatalIfError(err)
+
 		if !strings.HasSuffix(endpoint.Path, "/") {
 			endpoint.Path += "/"
 		}
+
 		client.BaseURL = endpoint
 		client.UploadURL = endpoint
 	}
@@ -78,6 +82,7 @@ func newGithubClient(conf *Configuration) *github.Client {
 
 func addGitAliases(ctx context.Context, conf *Configuration, client *github.Client) {
 	var ga []gitAlias
+
 	aliasesContent, _, _, err := client.Repositories.GetContents(ctx, conf.Username, gitAliasesRepo, gitAliasesFile, nil)
 	fatalIfError(err)
 	aliasesBytes, err := base64.StdEncoding.DecodeString(*aliasesContent.Content)
@@ -131,18 +136,19 @@ func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (
 		if *repo.Fork {
 			repo, _, err = client.Repositories.GetByID(ctx, *repo.ID)
 			fatalIfError(err)
+
 			parent = *repo.Parent.CloneURL
 		}
 
 		if conf.Token != "" {
 			urlPrefix := conf.Username + ":" + conf.Token + "@"
-			cloneURL = strings.Replace(cloneURL, "https://", "https://"+urlPrefix, -1)
-			cloneURL = strings.Replace(cloneURL, "http://", "http://"+urlPrefix, -1)
+			cloneURL = strings.ReplaceAll(cloneURL, "https://", "https://"+urlPrefix)
+			cloneURL = strings.ReplaceAll(cloneURL, "http://", "http://"+urlPrefix)
 		}
 
 		if !conf.SubDirs {
-			dir = strings.Replace(dir, "/", "_", -1)
-			dir = strings.Replace(dir, conf.Username+"_", "", -1)
+			dir = strings.ReplaceAll(dir, "/", "_")
+			dir = strings.ReplaceAll(dir, conf.Username+"_", "")
 		}
 
 		dir = conf.BaseDir + "/" + dir
@@ -164,6 +170,7 @@ func runInit(conf *Configuration, update bool) {
 
 	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
+
 		return
 	}
 
@@ -176,6 +183,7 @@ func runInit(conf *Configuration, update bool) {
 	usr, _, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
 		fatalIfError(err)
+
 		return
 	}
 

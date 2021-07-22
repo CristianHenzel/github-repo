@@ -62,6 +62,7 @@ func repoLoop(fn repoOperation, msg string) {
 		for _, repo := range conf.Repos {
 			batch.Queue(repoWorkUnit(fn, conf, repo, &status))
 		}
+
 		batch.QueueComplete()
 	}()
 
@@ -92,6 +93,7 @@ func pathExists(path string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 

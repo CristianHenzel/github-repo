@@ -43,15 +43,19 @@ func loadConfig() *Configuration {
 
 		bytes, err := ioutil.ReadFile(filePath)
 		e, ok := err.(*os.PathError)
+
 		if ok && e.Err == syscall.ENOENT {
 			if cwd == "/" {
 				fatalError(errConfNotExists)
+
 				return conf
 			}
 
 			cwd = path.Dir(cwd)
+
 			continue
 		}
+
 		fatalIfError(err)
 
 		err = json.Unmarshal(bytes, conf)
