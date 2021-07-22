@@ -26,6 +26,7 @@ func updateRepoConfig(conf *Configuration, repository *git.Repository) {
 	section := repoConf.Raw.Section("user")
 	section.SetOption("name", conf.Fullname)
 	section.SetOption("email", conf.Email)
+
 	err = repoConf.Validate()
 	fatalIfError(err)
 
@@ -66,6 +67,7 @@ func pullSubmodule(submodule *git.Submodule) error {
 				err := repository.Fetch(&git.FetchOptions{
 					RefSpecs: []gitconfig.RefSpec{"refs/*:refs/*"},
 				})
+
 				if err != nil {
 					return err
 				}
@@ -163,6 +165,7 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 		status.appendError(repo.Dir, err)
 		return
 	}
+
 	for _, s := range submodules {
 		err := pullSubmodule(s)
 		if err != nil {
