@@ -2,9 +2,9 @@ package cmd
 
 import (
 	color "github.com/fatih/color"
-	cobra "github.com/spf13/cobra"
 	git "github.com/go-git/go-git/v5"
 	gitconfig "github.com/go-git/go-git/v5/config"
+	cobra "github.com/spf13/cobra"
 )
 
 func init() {
@@ -33,8 +33,75 @@ func updateRepoConfig(conf *Configuration, repository *git.Repository) {
 	fatalIfError(err)
 }
 
+func pullSubmodule(submodule *git.Submodule) error {
+	status, err := submodule.Status()
+	if err != nil {
+		return err
+	}
+
+	repository, err := submodule.Repository()
+	if err != nil {
+		return err
+	}
+
+	worktree, err := repository.Worktree()
+	if err != nil {
+		return err
+	}
+
+	if status.Branch == "" {
+		remote, err := repository.Remote(git.DefaultRemoteName)
+		if err != nil {
+			return err
+		}
+
+		remoteRefs, err := remote.List(&git.ListOptions{})
+		if err != nil {
+			return err
+		}
+
+		for _, v := range remoteRefs {
+			if v.Name() == "HEAD" && v.Target() != "" {
+				branchRef := v.Target()
+				err := repository.Fetch(&git.FetchOptions{
+					RefSpecs: []gitconfig.RefSpec{"refs/*:refs/*"},
+				})
+				if err != nil {
+					return err
+				}
+
+				err = repository.CreateBranch(&gitconfig.Branch{
+					Name:   branchRef.Short(),
+					Remote: git.DefaultRemoteName,
+					Merge:  branchRef,
+				})
+				if err != nil {
+					return err
+				}
+
+				err = worktree.Checkout(&git.CheckoutOptions{
+					Branch: branchRef,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	err = worktree.Pull(&git.PullOptions{})
+
+	if err == git.NoErrAlreadyUpToDate {
+		// Ignore NoErrAlreadyUpToDate
+		err = nil
+	}
+
+	return err
+}
+
 func runPull(conf *Configuration, repo Repo, status *StatusList) {
 	var repository *git.Repository
+	var workTree *git.Worktree
 	var err error
 
 	if pathExists(repo.Dir) {
@@ -46,17 +113,19 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 		}
 
 		if err != nil {
-			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			status.appendError(repo.Dir, err)
 			return
 		}
 
-		workTree, err := repository.Worktree()
+		workTree, err = repository.Worktree()
 		if err != nil {
-			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			status.appendError(repo.Dir, err)
 			return
 		}
 
-		err = workTree.Pull(&git.PullOptions{RemoteName: git.DefaultRemoteName})
+		err = workTree.Pull(&git.PullOptions{
+			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+		})
 
 		if err == git.ErrNonFastForwardUpdate {
 			status.append(repo.Dir, color.RedString("Non-fast-forward update"))
@@ -69,7 +138,7 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 		}
 
 		if err != nil {
-			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			status.appendError(repo.Dir, err)
 			return
 		}
 	} else {
@@ -77,9 +146,27 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			URL:               repo.URL,
 			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		})
-
 		if err != nil {
-			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			status.appendError(repo.Dir, err)
+			return
+		}
+
+		workTree, err = repository.Worktree()
+		if err != nil {
+			status.appendError(repo.Dir, err)
+			return
+		}
+	}
+
+	submodules, err := workTree.Submodules()
+	if err != nil {
+		status.appendError(repo.Dir, err)
+		return
+	}
+	for _, s := range submodules {
+		err := pullSubmodule(s)
+		if err != nil {
+			status.appendError(repo.Dir, err)
 			return
 		}
 	}
@@ -94,7 +181,7 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 		})
 
 		if err != nil {
-			status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+			status.appendError(repo.Dir, err)
 			return
 		}
 	}
