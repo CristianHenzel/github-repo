@@ -7,8 +7,8 @@ import (
 	"text/tabwriter"
 
 	color "github.com/fatih/color"
-	cobra "github.com/spf13/cobra"
 	git "github.com/go-git/go-git/v5"
+	cobra "github.com/spf13/cobra"
 )
 
 const space = byte(' ')
@@ -26,8 +26,18 @@ func (status *Status) toString() string {
 	return status.Repo + "\t" + status.State
 }
 
+func (statuslist *StatusList) appendError(repo string, err error) {
+	*statuslist = append(*statuslist, Status{
+		Repo:  repo,
+		State: color.RedString(err.Error()),
+	})
+}
+
 func (statuslist *StatusList) append(repo, state string) {
-	*statuslist = append(*statuslist, Status{Repo: repo, State: state})
+	*statuslist = append(*statuslist, Status{
+		Repo:  repo,
+		State: state,
+	})
 }
 
 func (statuslist *StatusList) print() {
@@ -76,25 +86,25 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 		return
 	}
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
 	head, err := repository.Head()
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
 	workTree, err := repository.Worktree()
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
 	repoStatus, err := workTree.Status()
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
@@ -106,12 +116,12 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 
 	remote, err := repository.Remote(git.DefaultRemoteName)
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 	remoteRef, err := remote.List(&git.ListOptions{})
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
