@@ -27,8 +27,10 @@ var cFlags *Configuration
 
 type repoOperation func(*Configuration, Repo, *StatusList)
 
-var doExit = os.Exit
-var fatalError = fatalIfError
+var (
+	doExit     = os.Exit
+	fatalError = fatalIfError
+)
 
 func repoWorkUnit(fn repoOperation, conf *Configuration, repo Repo, status *StatusList) pool.WorkFunc {
 	return func(wu pool.WorkUnit) (interface{}, error) {
@@ -48,7 +50,7 @@ func repoLoop(fn repoOperation, msg string) {
 		if cFlags.Concurrency > 0 {
 			p = pool.NewLimited(cFlags.Concurrency)
 		} else {
-			var con = float64(runtime.NumCPU() * 2)
+			con := float64(runtime.NumCPU() * 2)
 			con = math.Max(con, 4)
 			p = pool.NewLimited(uint(con))
 		}

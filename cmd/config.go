@@ -67,7 +67,7 @@ func loadConfig() *Configuration {
 func (conf *Configuration) save() {
 	bytes, err := json.MarshalIndent(conf, "", "\t")
 	fatalIfError(err)
-	err = ioutil.WriteFile(configFile, bytes, 0644)
+	err = ioutil.WriteFile(configFile, bytes, 0o644)
 	fatalIfError(err)
 
 	fmt.Println("Configuration saved. You can now run pull to download/update your repositories.")

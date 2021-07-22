@@ -9,7 +9,7 @@ import (
 const nonFastForwardUpdatePush = "non-fast-forward update: refs/heads/master"
 
 func init() {
-	var pushCmd = &cobra.Command{
+	pushCmd := &cobra.Command{
 		Use:   "push",
 		Short: "Push all repositories",
 		Run: func(cmd *cobra.Command, args []string) {

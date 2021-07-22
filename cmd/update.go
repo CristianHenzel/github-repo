@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	var updateCmd = &cobra.Command{
+	updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "Update configuration",
 		Run: func(cmd *cobra.Command, args []string) {

@@ -60,7 +60,7 @@ func (statuslist *StatusList) print() {
 }
 
 func init() {
-	var statusCmd = &cobra.Command{
+	statusCmd := &cobra.Command{
 		Use:   "status",
 		Short: "Show status for all repositories",
 		Run: func(cmd *cobra.Command, args []string) {
