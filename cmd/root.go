@@ -8,7 +8,7 @@ import (
 	"runtime"
 
 	cobra "github.com/spf13/cobra"
-	term "golang.org/x/crypto/ssh/terminal"
+	term "golang.org/x/term"
 	pool "gopkg.in/go-playground/pool.v3"
 )
 

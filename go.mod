@@ -9,8 +9,8 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/rhysd/go-github-selfupdate v1.2.1
 	github.com/spf13/cobra v0.0.6
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/pool.v3 v3.1.1
 )
