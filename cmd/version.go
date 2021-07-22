@@ -20,7 +20,7 @@ const updateRepo = "CristianHenzel/github-repo"
 
 func init() {
 	var update bool
-	var versionCmd = &cobra.Command{
+	versionCmd := &cobra.Command{
 		Use:   "version",
 		Short: "Display version information",
 		Run: func(cmd *cobra.Command, args []string) {

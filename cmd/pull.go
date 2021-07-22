@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	var pullCmd = &cobra.Command{
+	pullCmd := &cobra.Command{
 		Use:   "pull",
 		Short: "Pull all repositories",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -179,7 +179,6 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			Name: "upstream",
 			URLs: []string{repo.Parent},
 		})
-
 		if err != nil {
 			status.appendError(repo.Dir, err)
 			return

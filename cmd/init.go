@@ -31,7 +31,7 @@ func init() {
 		cFlags = &Configuration{}
 	}
 
-	var initCmd = &cobra.Command{
+	initCmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize repository mirror",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -50,21 +50,21 @@ func init() {
 }
 
 func newGithubClient(conf *Configuration) *github.Client {
-	var ctx = context.Background()
+	ctx := context.Background()
 	var httpClient *http.Client
 
 	// Create github client
 	if conf.Token == "" {
 		httpClient = http.DefaultClient
 	} else {
-		var tokenSource = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
+		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: conf.Token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
-	var client = github.NewClient(httpClient)
+	client := github.NewClient(httpClient)
 
 	// Set base URL
 	if conf.BaseURL != "" {
-		var endpoint, err = url.Parse(conf.BaseURL)
+		endpoint, err := url.Parse(conf.BaseURL)
 		fatalIfError(err)
 		if !strings.HasSuffix(endpoint.Path, "/") {
 			endpoint.Path += "/"
@@ -103,7 +103,7 @@ func addGitAliases(ctx context.Context, conf *Configuration, client *github.Clie
 	bytes, err := cfg.Marshal()
 	fatalIfError(err)
 
-	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0644))
+	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0o644))
 }
 
 func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (repositories []Repo) {
@@ -160,7 +160,7 @@ func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (
 }
 
 func runInit(conf *Configuration, update bool) {
-	var ctx = context.Background()
+	ctx := context.Background()
 
 	if pathExists(configFile) && !update {
 		fatalError(errConfExists)
@@ -168,10 +168,10 @@ func runInit(conf *Configuration, update bool) {
 	}
 
 	// GetUint returns 0 if the flag was not set or if there is any error
-	var con, _ = rootCmd.PersistentFlags().GetUint("concurrency")
+	con, _ := rootCmd.PersistentFlags().GetUint("concurrency")
 	conf.Concurrency = con
 
-	var client = newGithubClient(conf)
+	client := newGithubClient(conf)
 
 	usr, _, err := client.Users.Get(ctx, conf.Username)
 	if err != nil {
