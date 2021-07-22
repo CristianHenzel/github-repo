@@ -174,6 +174,14 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 		}
 	}
 
+	err = repository.Fetch(&git.FetchOptions{
+		RefSpecs: []gitconfig.RefSpec{"refs/*:refs/*"},
+	})
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		status.appendError(repo.Dir, err)
+		return
+	}
+
 	updateRepoConfig(conf, repository)
 	_, err = repository.Remote("upstream")
 
