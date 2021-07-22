@@ -2,8 +2,8 @@ package cmd
 
 import (
 	color "github.com/fatih/color"
-	cobra "github.com/spf13/cobra"
 	git "github.com/go-git/go-git/v5"
+	cobra "github.com/spf13/cobra"
 )
 
 const nonFastForwardUpdatePush = "non-fast-forward update: refs/heads/master"
@@ -28,7 +28,7 @@ func runPush(conf *Configuration, repo Repo, status *StatusList) {
 	}
 
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func runPush(conf *Configuration, repo Repo, status *StatusList) {
 	}
 
 	if err != nil {
-		status.append(repo.Dir, color.RedString("ERROR: " + err.Error()))
+		status.appendError(repo.Dir, err)
 		return
 	}
 
