@@ -7,8 +7,8 @@ UPX           := upx
 OUTDIR        := out
 INSTALL_PATH  := /usr/bin/gr
 
-BUILDDATE     := $(shell date --rfc-3339=seconds)
-VERSION_PROD  := $(shell git describe --all --exact-match --abbrev=0 2>/dev/null)
+BUILDDATE     := $(shell date -u "+%Y-%m-%d %H:%M:%S UTC")
+VERSION_PROD  := $(shell git describe --all --exact-match --abbrev=0 2>/dev/null | sed "s/tags\/v//")
 VERSION_DEV   := $(shell git describe --all | sed "s/-/+/" | sed "s/-/./")
 VERSION       := $(or $(VERSION_PROD),$(VERSION_DEV))
 
