@@ -24,7 +24,7 @@ jobs:
       - name: Install prerequisites
         run: sudo apt-get install make upx-ucl
       - name: Build gr
-        run: make
+        run: make all
       - name: Release gr
         uses: softprops/action-gh-release@v1
         with:
