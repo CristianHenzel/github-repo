@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -13,13 +14,13 @@ import (
 
 const space = byte(' ')
 
-// Status holds a repository's status
+// Status holds a repository's status.
 type Status struct {
 	Repo  string
 	State string
 }
 
-// StatusList is a convenience wrapper around []Status
+// StatusList is a convenience wrapper around []Status.
 type StatusList []Status
 
 func (status *Status) toString() string {
@@ -76,64 +77,72 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 	var ret string
 
 	if !pathExists(repo.Dir) {
-		status.append(repo.Dir, color.RedString("Absent"))
+		status.append(repo.Dir, color.RedString("absent"))
+
 		return
 	}
 
 	repository, err := git.PlainOpen(repo.Dir)
 	// If we get ErrRepositoryNotExists here, it means the repo is broken
-	if err == git.ErrRepositoryNotExists {
-		status.append(repo.Dir, color.RedString("Broken"))
+	if errors.Is(err, git.ErrRepositoryNotExists) {
+		status.append(repo.Dir, color.RedString("broken"))
+
 		return
 	}
 
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	head, err := repository.Head()
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	workTree, err := repository.Worktree()
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	repoStatus, err := workTree.Status()
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	if repoStatus.IsClean() {
-		ret += color.GreenString("Clean")
+		ret += color.GreenString("clean")
 	} else {
-		ret += color.RedString("Dirty")
+		ret += color.RedString("dirty")
 	}
 
 	remote, err := repository.Remote(git.DefaultRemoteName)
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	remoteRef, err := remote.List(&git.ListOptions{})
 	if err != nil {
 		status.appendError(repo.Dir, err)
+
 		return
 	}
 
 	for _, r := range remoteRef {
 		if r.Name().String() == "refs/heads/"+repo.Branch {
 			if r.Hash() == head.Hash() {
-				ret += "\t" + color.GreenString("Fresh")
+				ret += "\t" + color.GreenString("latest")
 			} else {
-				ret += "\t" + color.RedString("Stale")
+				ret += "\t" + color.RedString("stale")
 			}
 
 			break
