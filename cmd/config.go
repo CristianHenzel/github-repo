@@ -11,29 +11,29 @@ import (
 
 const configFile = "gr.conf"
 
-// Repo holds a repository URL and its local directory equivalent
+// Repo holds a repository URL and its local directory equivalent.
 type Repo struct {
-	URL    string `json:"URL"`
-	Dir    string `json:"Dir"`
-	Branch string `json:"Branch"`
-	Parent string `json:"Parent"`
+	URL    string `json:"url"`
+	Dir    string `json:"dir"`
+	Branch string `json:"branch"`
+	Parent string `json:"parent"`
 }
 
-// Configuration holds git configuration data
+// Configuration holds git configuration data.
 type Configuration struct {
-	Fullname    string `json:"Fullname"`
-	Username    string `json:"Username"`
-	BaseDir     string `json:"BaseDir"`
-	BaseURL     string `json:"BaseURL"`
-	Token       string `json:"Token"`
-	Email       string `json:"Email"`
-	Concurrency uint   `json:"Concurrency"`
-	SubDirs     bool   `json:"SubDirs"`
-	Repos       []Repo `json:"Repos"`
+	Fullname    string `json:"fullName"`
+	Username    string `json:"username"`
+	BaseDir     string `json:"baseDir"`
+	BaseURL     string `json:"baseURL"`
+	Token       string `json:"token"`
+	Email       string `json:"email"`
+	Concurrency uint   `json:"concurrency"`
+	SubDirs     bool   `json:"subDirs"`
+	Repos       []Repo `json:"repos"`
 }
 
 func loadConfig() *Configuration {
-	var conf *Configuration = &Configuration{}
+	conf := &Configuration{}
 
 	cwd, err := os.Getwd()
 	fatalIfError(err)

@@ -19,8 +19,6 @@ var (
 	errConfNotExists = fmt.Errorf("Couldn't find configuration file in current directory or any " +
 		"parent directory. Make sure that you are in the correct directory and that init has " +
 		"been run successfully.")
-	errAuthRequired = "authentication required"
-	errAuthFailed   = "authorization failed"
 )
 
 var cFlags *Configuration
@@ -35,6 +33,7 @@ var (
 func repoWorkUnit(fn repoOperation, conf *Configuration, repo Repo, status *StatusList) pool.WorkFunc {
 	return func(wu pool.WorkUnit) (interface{}, error) {
 		fn(conf, repo, status)
+
 		return nil, nil
 	}
 }
