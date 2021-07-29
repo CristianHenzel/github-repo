@@ -16,7 +16,7 @@ import (
 	oauth2 "golang.org/x/oauth2"
 )
 
-var (
+const (
 	gitAliasesRepo = "gr-git-aliases"
 	gitAliasesFile = "aliases.json"
 )
@@ -108,7 +108,7 @@ func addGitAliases(ctx context.Context, conf *Configuration, client *github.Clie
 	bytes, err := cfg.Marshal()
 	fatalIfError(err)
 
-	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0o644))
+	fatalIfError(ioutil.WriteFile(gitconfigPath, bytes, 0o600))
 }
 
 func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (repositories []Repo) {
