@@ -24,7 +24,7 @@ type Configuration struct {
 	Fullname    string `json:"fullName"`
 	Username    string `json:"username"`
 	BaseDir     string `json:"baseDir"`
-	BaseURL     string `json:"baseURL"`
+	BaseURL     string `json:"baseUrl"`
 	Token       string `json:"token"`
 	Email       string `json:"email"`
 	Concurrency uint   `json:"concurrency"`
@@ -71,7 +71,7 @@ func loadConfig() *Configuration {
 func (conf *Configuration) save() {
 	bytes, err := json.MarshalIndent(conf, "", "\t")
 	fatalIfError(err)
-	err = ioutil.WriteFile(configFile, bytes, 0o644)
+	err = ioutil.WriteFile(configFile, bytes, 0o600)
 	fatalIfError(err)
 
 	fmt.Println("Configuration saved. You can now run pull to download/update your repositories.")
