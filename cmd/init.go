@@ -115,12 +115,18 @@ func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (
 	var repos []*github.Repository
 	var err error
 
+	opts := &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+
 	if conf.Token == "" {
 		// Get public repositories for specified username
-		repos, _, err = client.Repositories.List(ctx, conf.Username, nil)
+		repos, _, err = client.Repositories.List(ctx, conf.Username, opts)
 	} else {
 		// Get all repositories for authenticated user
-		repos, _, err = client.Repositories.List(ctx, "", nil)
+		repos, _, err = client.Repositories.List(ctx, "", opts)
 	}
 	fatalIfError(err)
 
