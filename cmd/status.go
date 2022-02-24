@@ -44,6 +44,11 @@ func (statuslist *StatusList) append(repo, state string) {
 func (statuslist *StatusList) print() {
 	// Sort list
 	sl := *statuslist
+
+	if len(sl) == 0 {
+		return
+	}
+
 	sort.Slice(sl, func(i, j int) bool {
 		return sl[i].Repo < sl[j].Repo
 	})
