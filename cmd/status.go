@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
+	"strings"
 	"text/tabwriter"
 
 	color "github.com/fatih/color"
@@ -72,10 +74,45 @@ func init() {
 		Short: "Show status for all repositories",
 		Run: func(cmd *cobra.Command, args []string) {
 			repoLoop(runStatus, "Checking")
+			runLocalStatus()
 		},
 	}
 
 	rootCmd.AddCommand(statusCmd)
+}
+
+func isRepoDir(path string, repos []Repo) bool {
+	path = path + "/"
+	for _, r := range repos {
+		repoDir := r.Dir + "/"
+		if strings.HasPrefix(repoDir, path) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func runLocalStatus() {
+	conf := loadConfig()
+	var status StatusList
+
+	files, err := filepath.Glob(conf.BaseDir + "/*")
+	fatalIfError(err)
+
+	if conf.SubDirs {
+		parents, err := filepath.Glob(conf.BaseDir + "/*/*")
+		fatalIfError(err)
+		files = append(files, parents...)
+	}
+
+	for _, f := range files {
+		if !isRepoDir(f, conf.Repos) {
+			status.append(f, color.RedString("untracked"))
+		}
+	}
+
+	status.print()
 }
 
 func runStatus(conf *Configuration, repo Repo, status *StatusList) {
