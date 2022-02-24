@@ -21,15 +21,16 @@ type Repo struct {
 
 // Configuration holds git configuration data.
 type Configuration struct {
-	Fullname    string `json:"fullName"`
-	Username    string `json:"username"`
-	BaseDir     string `json:"baseDir"`
-	BaseURL     string `json:"baseUrl"`
-	Token       string `json:"token"`
-	Email       string `json:"email"`
-	Concurrency uint   `json:"concurrency"`
-	SubDirs     bool   `json:"subDirs"`
-	Repos       []Repo `json:"repos"`
+	Fullname      string `json:"fullName"`
+	Username      string `json:"username"`
+	BaseDir       string `json:"baseDir"`
+	BaseURL       string `json:"baseUrl"`
+	Token         string `json:"token"`
+	Email         string `json:"email"`
+	Concurrency   uint   `json:"concurrency"`
+	SubDirs       bool   `json:"subDirs"`
+	ExcludedRepos string `json:"excludedRepos"`
+	Repos         []Repo `json:"repos"`
 }
 
 func loadConfig() *Configuration {

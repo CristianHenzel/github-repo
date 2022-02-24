@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os/user"
+	"regexp"
 	"strings"
 
 	gitconfig "github.com/go-git/go-git/v5/config"
@@ -45,6 +46,7 @@ func init() {
 	initCmd.Flags().StringVarP(&cFlags.BaseURL, "url", "r", "", "GitHub Enterprise URL")
 	initCmd.Flags().StringVarP(&cFlags.BaseDir, "dir", "d", ".", "Directory in which repositories will be stored")
 	initCmd.Flags().BoolVarP(&cFlags.SubDirs, "subdirs", "s", false, "Enable creation of separate subdirectories for each org/user")
+	initCmd.Flags().StringVarP(&cFlags.ExcludedRepos, "exclude", "e", "", "Regular expression of repositories to exclude")
 
 	rootCmd.AddCommand(initCmd)
 }
@@ -130,10 +132,20 @@ func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (
 	}
 	fatalIfError(err)
 
+	var re *regexp.Regexp
+	if conf.ExcludedRepos != "" {
+		re, err = regexp.Compile(conf.ExcludedRepos)
+        fatalIfError(err)
+	}
+
 	for _, repo := range repos {
 		cloneURL := *repo.CloneURL
 		dir := *repo.FullName
 		parent := ""
+
+		if re != nil && re.MatchString(dir) {
+			continue
+		}
 
 		if *repo.Name == gitAliasesRepo {
 			addGitAliases(ctx, conf, client)
