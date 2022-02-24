@@ -37,7 +37,7 @@ gr init -u USERNAME -t TOKEN -d SOMEDIR -c 10
 ```
 or, if you are using GitHub Enterprise:
 ```
-gr init -u USERNAME -t TOKEN -r https://example.com/api/v3/
+gr init -c 10 -u USERNAME -t TOKEN -r https://example.com/api/v3/ -d SOMEDIR -e "repo1|SOMEORG/repo-.*" -s
 ```
 
 After the configuration is created, you can pull all repositories using:
