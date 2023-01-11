@@ -123,19 +123,28 @@ func getRepos(ctx context.Context, conf *Configuration, client *github.Client) (
 		},
 	}
 
+	// Get all repositories for authenticated user
+	requestUser := ""
 	if conf.Token == "" {
 		// Get public repositories for specified username
-		repos, _, err = client.Repositories.List(ctx, conf.Username, opts)
-	} else {
-		// Get all repositories for authenticated user
-		repos, _, err = client.Repositories.List(ctx, "", opts)
+		requestUser = conf.Username
 	}
-	fatalIfError(err)
+
+	for {
+		pagedRepos, resp, err := client.Repositories.List(ctx, requestUser, opts)
+		fatalIfError(err)
+		repos = append(repos, pagedRepos...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
 
 	var re *regexp.Regexp
 	if conf.ExcludedRepos != "" {
 		re, err = regexp.Compile(conf.ExcludedRepos)
-        fatalIfError(err)
+		fatalIfError(err)
 	}
 
 	for _, repo := range repos {
