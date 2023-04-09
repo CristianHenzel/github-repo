@@ -130,6 +130,19 @@ func runPull(conf *Configuration, repo Repo, status *StatusList) {
 			return
 		}
 
+		repoStatus, err := workTree.Status()
+		if err != nil {
+			status.appendError(repo.Dir, err)
+
+			return
+		}
+
+		if !repoStatus.IsClean() {
+			status.appendError(repo.Dir, git.ErrWorktreeNotClean)
+
+			return
+		}
+
 		err = workTree.Pull(&git.PullOptions{
 			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		})
