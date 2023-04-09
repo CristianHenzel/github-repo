@@ -1,6 +1,6 @@
 module github.com/CristianHenzel/github-repo
 
-go 1.13
+go 1.17
 
 require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
