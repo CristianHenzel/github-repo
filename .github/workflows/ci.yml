@@ -16,11 +16,11 @@ jobs:
     name: Build and release gr
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
       - name: Install macOS prerequisites
@@ -39,8 +39,8 @@ jobs:
       - name: Build gr
         run: make
       - name: Release gr
-        uses: softprops/action-gh-release@v1
-        with:
-          files: out/gr_*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/gr_*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
