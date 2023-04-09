@@ -1,4 +1,4 @@
-[![Build](https://img.shields.io/travis/CristianHenzel/github-repo.svg?color=BrightGreen)](https://travis-ci.org/CristianHenzel/github-repo)
+[![CI](https://github.com/CristianHenzel/github-repo/actions/workflows/ci.yml/badge.svg)](https://github.com/CristianHenzel/github-repo/actions/)
 [![Go Report](https://goreportcard.com/badge/github.com/CristianHenzel/github-repo)](https://goreportcard.com/report/github.com/CristianHenzel/github-repo)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/CristianHenzel/github-repo.svg)](https://codeclimate.com/github/CristianHenzel/github-repo/maintainability)
 [![License: LGPL v2.1](https://img.shields.io/github/license/CristianHenzel/github-repo.svg?color=blue)](https://www.gnu.org/licenses/lgpl-2.1)
