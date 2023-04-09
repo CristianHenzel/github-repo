@@ -145,6 +145,12 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 		return
 	}
 
+	if branch := head.Name().Short(); branch == repo.Branch {
+		ret += color.GreenString(branch)
+	} else {
+		ret += color.RedString(branch)
+	}
+
 	workTree, err := repository.Worktree()
 	if err != nil {
 		status.appendError(repo.Dir, err)
@@ -160,9 +166,9 @@ func runStatus(conf *Configuration, repo Repo, status *StatusList) {
 	}
 
 	if repoStatus.IsClean() {
-		ret += color.GreenString("clean")
+		ret += "\t" + color.GreenString("clean")
 	} else {
-		ret += color.RedString("dirty")
+		ret += "\t" + color.RedString("dirty")
 	}
 
 	remote, err := repository.Remote(git.DefaultRemoteName)
