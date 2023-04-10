@@ -48,9 +48,10 @@ $(BINARY_386)   : export GOARCH = 386
 $(BINARY_AMD64) : export GOARCH = amd64
 	export GOOS = linux
 $(BINARIES) : | deps $(OUTDIR)
-	$(GOBUILD) -ldflags="$(LDFLAGS)" -tags="$(BUILD_TAGS)" -o $@
-	$(UPX) -9 $@
-	sha256sum $@ | awk '{print $$1}' > $@.sha256
+	$(GOBUILD) -ldflags="$(LDFLAGS)" -tags="$(BUILD_TAGS)" -o "$@.uncompressed"
+	sha256sum "$@.uncompressed" | awk '{print $$1}' > "$@.uncompressed.sha256"
+	$(UPX) --best "$@.uncompressed" -o"$@"
+	sha256sum "$@" | awk '{print $$1}' > "$@.sha256"
 
 .PHONY: test
 test:
