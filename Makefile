@@ -16,7 +16,8 @@ BINARY_386    := $(OUTDIR)/gr_linux_386
 BINARY_AMD64  := $(OUTDIR)/gr_linux_amd64
 BINARY_NATIVE := $(OUTDIR)/gr_$(shell go env GOOS)_$(shell go env GOARCH)
 BINARIES      := $(sort $(BINARY_386) $(BINARY_AMD64) $(BINARY_NATIVE))
-LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)'
+BUILD_TAGS    := osusergo netgo static_build
+LDFLAGS       := -s -w -X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(BUILDDATE)' -extldflags=-static
 
 .DEFAULT_GOAL := $(BINARY_NATIVE)
 
@@ -47,7 +48,7 @@ $(BINARY_386)   : export GOARCH = 386
 $(BINARY_AMD64) : export GOARCH = amd64
 	export GOOS = linux
 $(BINARIES) : | deps $(OUTDIR)
-	$(GOBUILD) -ldflags="$(LDFLAGS)" -o $@
+	$(GOBUILD) -ldflags="$(LDFLAGS)" -tags="$(BUILD_TAGS)" -o $@
 	$(UPX) -9 $@
 	sha256sum $@ | awk '{print $$1}' > $@.sha256
 
