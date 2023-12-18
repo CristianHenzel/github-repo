@@ -10,7 +10,7 @@ require (
 	github.com/rhysd/go-github-selfupdate v1.2.3
 	github.com/spf13/cobra v1.3.0
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	golang.org/x/term v0.5.0
+	golang.org/x/term v0.15.0
 	gopkg.in/go-playground/pool.v3 v3.1.1
 )
 
@@ -37,9 +37,9 @@ require (
 	github.com/tcnksm/go-gitconfig v0.1.2 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
